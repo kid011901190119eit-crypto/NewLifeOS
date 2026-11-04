@@ -46,4 +46,16 @@
 
 ## よく使うコマンド
 
-> 未確定: リポジトリの初期構築後に追記する(依存関係のインストール、テスト、Lint、ローカル起動など)。
+前提: Node.js 24、pnpm 12(版はルートの `package.json` の `engines` と `packageManager` で固定している)。コマンドはリポジトリのルートで実行する。
+
+| やりたいこと | コマンド |
+|---|---|
+| 依存関係のインストール | `pnpm install` |
+| すべてのテスト | `pnpm test` |
+| すべての型チェック | `pnpm typecheck` |
+| すべてのビルド | `pnpm build` |
+| 1つのパッケージだけ | `pnpm --filter @lifeos/core test`(`test` は `typecheck`・`build` にも置き換えられる) |
+| テストを監視モードで実行 | `pnpm --filter @lifeos/core exec vitest` |
+| 開発用の依存関係を追加 | `pnpm --filter <パッケージ名> add -D <依存関係>`(追加の前にオーナーへ確認する) |
+
+> 未確定: Lint(ESLint・Prettier)とローカル起動のコマンドは、それぞれを導入するプルリクエストで追記する。
