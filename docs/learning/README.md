@@ -14,3 +14,7 @@
 
 - [複式簿記の仕訳と遅延制約](double-entry-bookkeeping.md)
 - [モジュールの登録と境界](module-registration-and-boundaries.md)
+- [pnpm workspaces(モノレポのパッケージ管理)](pnpm-workspaces.md)
+- [Turborepo(タスクの実行とキャッシュ)](turborepo.md)
+- [TypeScript の設定(tsconfig)](tsconfig.md)
+- [Vitest(テストの実行)](vitest.md)
