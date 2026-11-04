@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        task: [lint, format, typecheck, test, build]
+        task: [lint, format, typecheck, test, integration, build]
         include:
           - task: lint
             command: pnpm lint
@@ -32,6 +32,9 @@ jobs:
             command: pnpm typecheck
           - task: test
             command: pnpm test
+          # ubuntu のランナーには Docker が入っているので、Testcontainers がそのまま使える
+          - task: integration
+            command: pnpm test:integration
           - task: build
             command: pnpm build
     steps:

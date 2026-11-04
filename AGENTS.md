@@ -124,7 +124,8 @@
 | やりたいこと | コマンド |
 |---|---|
 | 依存関係のインストール | `pnpm install` |
-| すべてのテスト | `pnpm test` |
+| すべてのテスト(ユニットテスト。Docker は要らない) | `pnpm test` |
+| すべての結合テスト(Testcontainers で使い捨ての PostgreSQL を起動する。Docker Desktop を起動しておく) | `pnpm test:integration` |
 | すべての型チェック | `pnpm typecheck` |
 | すべてのビルド | `pnpm build` |
 | すべての Lint(ESLint と dependency-cruiser) | `pnpm lint` |

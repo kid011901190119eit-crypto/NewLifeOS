@@ -8,17 +8,27 @@ const configDir = path.join(import.meta.dirname, "..");
 const repoRoot = path.join(configDir, "..", "..");
 
 interface PackageRule {
+  enabled?: boolean;
   matchPackageNames?: string[];
   matchManagers?: string[];
   matchUpdateTypes?: string[];
   allowedVersions?: string;
   groupName?: string;
+  separateMajorMinor?: boolean;
   semanticCommitType?: string;
   automerge?: boolean;
 }
 
+interface CustomManager {
+  customType?: string;
+  managerFilePatterns?: string[];
+  matchStrings?: string[];
+  datasourceTemplate?: string;
+}
+
 interface RenovateConfig {
   extends?: string[];
+  customManagers?: CustomManager[];
   automerge?: boolean;
   timezone?: string;
   schedule?: string[];
@@ -116,6 +126,7 @@ describe("Renovate の設定(Issue #21)", () => {
       ["github-actions", "ci", "update aquasec/trivy:0.76.1 docker digest to 1a2b3c4"],
       ["docker-compose", "build", "update postgres docker tag to v18.7"],
       ["docker-compose", "build", "update valkey/valkey:9.1.3 docker digest to 1a2b3c4"],
+      ["custom.regex", "build", "update testcontainers/ryuk:0.14.0 docker digest to 1a2b3c4"],
     ])("%s の更新は %s(deps): %s", async (manager, expectedType, subject) => {
       const type = rules.find(
         (rule) => rule.matchManagers?.includes(manager) && rule.semanticCommitType,
@@ -124,5 +135,50 @@ describe("Renovate の設定(Issue #21)", () => {
       expect(type).toBe(expectedType);
       expect(await failedRules(`${type}(${config.semanticCommitScope}): ${subject}`)).toEqual([]);
     });
+  });
+});
+
+describe("Testcontainers の Ryuk のイメージの更新(Issue #29)", () => {
+  const ryukFile = "packages/db/src/testing/ryuk-image.ts";
+  // managerFilePatterns の "/…/" は正規表現として扱われる
+  const manager = (config.customManagers ?? []).find((custom) =>
+    custom.managerFilePatterns?.some((pattern) => new RegExp(pattern.slice(1, -1)).test(ryukFile)),
+  );
+
+  it("ryuk-image.ts の Ryuk のイメージを、Docker のイメージとして読み取る", () => {
+    expect(manager?.customType).toBe("regex");
+    expect(manager?.datasourceTemplate).toBe("docker");
+    // Renovate の matchStrings は JavaScript と同じ名前つきグループの書き方なので、そのまま試せる
+    const text = readFileSync(path.join(repoRoot, ryukFile), "utf8");
+    const groups = new RegExp(manager?.matchStrings?.[0] ?? "^$").exec(text)?.groups;
+    expect(groups?.depName).toBe("testcontainers/ryuk");
+    expect(groups?.currentValue).toMatch(/^\d+\.\d+\.\d+$/);
+    expect(groups?.currentDigest).toMatch(/^sha256:[0-9a-f]{64}$/);
+  });
+
+  // 組が合っているかは packages/db の ryuk-image.test.ts が検査する
+  const together = ["testcontainers", "@testcontainers/postgresql", "testcontainers/ryuk"];
+
+  it("Testcontainers と Ryuk の更新を、メジャーも含めて1つのプルリクエストにまとめる(版が組で決まるため)", () => {
+    const groupRules = rules.filter((rule) =>
+      together.every((name) => rule.matchPackageNames?.includes(name)),
+    );
+    expect(groupRules).toHaveLength(1);
+    expect(groupRules[0]?.groupName).toBeDefined();
+    expect(groupRules[0]?.separateMajorMinor).toBe(false);
+    expect(groupRules[0]?.matchUpdateTypes).toBeUndefined();
+  });
+
+  it("まとめる設定は npm のマイナー・パッチのまとめより後に書く(Renovate は後の設定で上書きする)", () => {
+    const groupIndex = rules.findIndex((rule) =>
+      rule.matchPackageNames?.includes("testcontainers"),
+    );
+    expect(groupIndex).toBeGreaterThan(rules.indexOf(ruleForManager("npm") as PackageRule));
+  });
+
+  it.each(together)("%s の更新を止めていない", (name) => {
+    expect(
+      rules.filter((rule) => rule.matchPackageNames?.includes(name) && rule.enabled === false),
+    ).toEqual([]);
   });
 });
