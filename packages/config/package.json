@@ -1,0 +1,13 @@
+{
+  "name": "@lifeos/config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./tsconfig.base.json": "./tsconfig.base.json",
+    "./vitest.base.js": "./vitest.base.js"
+  },
+  "devDependencies": {
+    "vitest": "^5.1.0"
+  }
+}

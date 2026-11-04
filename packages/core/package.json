@@ -1,0 +1,22 @@
+{
+  "name": "@lifeos/core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@lifeos/config": "workspace:*",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
+  }
+}
