@@ -29,5 +29,6 @@
 - [Renovate(依存関係の更新の自動提案)](renovate.md)
 - [Docker(イメージ・コンテナ・ボリューム)](docker.md)
 - [Docker Compose(複数のコンテナをまとめて動かす)](docker-compose.md)
-- [Claude Code のカスタムスラッシュコマンド(`/issue`)](claude-code-commands.md)
+- [Claude Code のカスタムスラッシュコマンド(`/issue`・`/start`・`/review-issue`)](claude-code-commands.md)
 - [Orca のワークツリーの準備(orca.yaml と .worktreeinclude)](orca-worktree-setup.md)
+- [Orca のオーケストレーション(複数のエージェントに分担させる)](orca-orchestration.md)
