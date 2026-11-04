@@ -27,3 +27,4 @@ ADR(Architecture Decision Record)は、「何を・なぜ決めたのか」を1�
 | [0014](0014-module-manifest-and-registration.md) | モジュールのマニフェストをサーバー用と画面用に分け、一覧ファイルで静的に登録する | 承認 |
 | [0015](0015-module-collaboration-and-boundaries.md) | モジュール間の連携は公開用の入口とZodで定義したイベントで行い、境界を3つの仕組みで検査する | 承認 |
 | [0016](0016-operations-routes-and-tools.md) | 処理は「操作」として共通にし、RESTのルートとMCPのツールは別々の薄い入口として書く | 承認 |
+| [0017](0017-typescript-6.md) | TypeScript は当面 6 系を使う(typescript-eslint が 7 系に未対応のため) | 承認 |
