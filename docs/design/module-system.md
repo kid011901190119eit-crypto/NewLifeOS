@@ -516,7 +516,7 @@ export type { Balance } from "../domain/balance";
 | apps/web | × | ○ | × | ○ | × | web だけ ○ | × |
 
 - 自分のモジュールの中では、相対パスで自由に import してよい。ただし `web` から `server`・`db/schema` は × (ブラウザに入れないため)。
-- `domain` は DB・HTTP・Zod 以外のライブラリを使わない純粋なロジックにする(ユニットテストのしやすさのため。ルールとしても検査する)。
+- `domain` は DB と HTTP を使わない純粋なロジックにする。外部のライブラリは Zod だけを使ってよい(ユニットテストのしやすさのため。ルールとしても検査する)。
 
 ### 5.3 1つ目の仕組み: package.json の `exports`
 
