@@ -51,7 +51,8 @@ const policies = [
   // 外部のライブラリと Node.js の組み込みモジュールは、下で個別に禁止しない限り使ってよい
   { allow: { to: { module: { origin: ["external", "core"] } } } },
 
-  { from: from("core", "core-web"), allow: to("db") },
+  // core/web はブラウザで動くので、db もコアのサーバー側も import させない(どちらも許可しない)
+  { from: from("core"), allow: to("db") },
 
   // 自分のモジュールの中は、相対パスで自由に import してよい
   {

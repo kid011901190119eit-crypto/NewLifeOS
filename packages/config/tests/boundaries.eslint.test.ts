@@ -53,6 +53,14 @@ describe("ESLint の境界ルール(module-system.md §5.2)", () => {
       expect(errors).toEqual([expect.stringContaining("boundaries/dependencies")]);
     });
 
+    it.each([
+      ["db", "violation-imports-db.ts"],
+      ["コアのサーバー側", "violation-imports-core-server.ts"],
+    ])("コアの画面用の入口(core/web)が %s を import すると、エラーになる", async (_, file) => {
+      const errors = await boundaryErrors(`packages/core/src/web/${file}`);
+      expect(errors).toEqual([expect.stringContaining("boundaries/dependencies")]);
+    });
+
     it("コアが db を import しても、エラーにならない", async () => {
       expect(await boundaryErrors("packages/core/src/index.ts")).toEqual([]);
     });

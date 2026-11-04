@@ -40,9 +40,15 @@ const forbidden = [
   },
   row(
     "core-deps",
-    "コアが import してよいのは、自分と db だけ(モジュールを知らない)",
-    "^packages/core/",
+    "コアのサーバー側が import してよいのは、コアと db だけ(モジュールを知らない)",
+    `^${coreServer}`,
     ["packages/core/", "packages/db/"],
+  ),
+  row(
+    "core-web-deps",
+    "core/web はブラウザで動くので、import してよいのは core/web の中だけ(db・コアのサーバー側は禁止)",
+    `^${coreWeb}`,
+    [coreWeb],
   ),
   row(
     "module-server-side-deps",

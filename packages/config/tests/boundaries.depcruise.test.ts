@@ -24,6 +24,8 @@ describe("dependency-cruiser のアーキテクチャテスト(module-system.md 
     expect(await violations()).toEqual(
       [
         "core-deps: packages/core/src/violation-imports-module.ts",
+        "core-web-deps: packages/core/src/web/violation-imports-core-server.ts",
+        "core-web-deps: packages/core/src/web/violation-imports-db.ts",
         "domain-no-db: packages/modules/alpha/src/domain/violation-imports-own-db-schema.ts",
         "domain-only-zod: packages/modules/alpha/src/domain/violation-imports-non-zod-library.ts",
         "module-server-side-deps: packages/modules/alpha/src/server/violation-imports-beta-internal.ts",
