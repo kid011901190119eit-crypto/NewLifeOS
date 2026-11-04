@@ -52,6 +52,12 @@ pnpm format:check  # 整形が必要なファイルの確認
 
 手元で PostgreSQL と Valkey を動かすには Docker Desktop が必要です。最初に `deploy/compose/.env.example` を `deploy/compose/.env` に複製し、`pnpm db:up` で起動します(停止は `pnpm db:down`)。詳しくは学習ノートの [Docker](docs/learning/docker.md)・[Docker Compose](docs/learning/docker-compose.md) を参照してください。
 
+### AIエージェントと Orca で作業するとき
+
+- Claude Code では、`/issue <番号>` と入力すると、[`AGENTS.md`「Issue に取り組むときの標準の手順」](AGENTS.md#issue-に取り組むときの標準の手順)に従って作業が始まります(コマンドの中身は `.claude/commands/issue.md`)。
+- Orca で新しいワークツリーを作ると、`orca.yaml` の setup が `pnpm install --frozen-lockfile` を実行し、`deploy/compose/.env` を用意します。`.env` は、メインのチェックアウトにあればそれを(`.worktreeinclude`)、なければ `.env.example` から作ります。中身はコミットされません。
+- 準備: メインのチェックアウトで `git pull` しておき、`deploy/compose/.env` を作っておきます。Orca の画面の Settings → Repository で、setup の実行が「自動」、コマンドの出どころが「orca.yaml」または「両方」になっていることを確かめます(どちらも既定のままで問題ありません)。初めて setup が動くときに Orca が確認を求めるので、内容を見て許可します。詳しくは学習ノートの [Claude Code のカスタムスラッシュコマンド](docs/learning/claude-code-commands.md)・[Orca のワークツリーの準備](docs/learning/orca-worktree-setup.md) を参照してください。
+
 ほかのコマンドは [`AGENTS.md`「よく使うコマンド」](AGENTS.md#よく使うコマンド) を参照してください。
 
 ## 技術スタック(予定)

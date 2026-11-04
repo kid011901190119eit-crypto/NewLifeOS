@@ -1,0 +1,7 @@
+# Orca で新しいワークツリーを作ったときの準備。解説は docs/learning/orca-worktree-setup.md
+# Windows では cmd で1行ずつ実行されるため、cmd と bash の両方で動く書き方にする。
+scripts:
+  setup: |
+    pnpm install --frozen-lockfile
+    node -e "const fs=require('node:fs');const p='deploy/compose/.env';if(!fs.existsSync(p))fs.copyFileSync(p+'.example',p)"
+setupAgentStartupPolicy: wait-for-setup
