@@ -29,7 +29,7 @@ orca orchestration worker-start --worktree new-child --base-branch origin/main -
   --spec "docs/agents/reviewer.md の段階1に従って、Issue #<番号> の合格の条件のチェックリストを作る。読む章: <一覧>"
 ```
 
-- 起動の結果に出る **Dispatch ID**(`ctx_…` の形)を、役割ごとに控える。以後のやり取りはこの ID で行い、`send` の宛先は `dispatch:ctx_…` と書く。
+- 起動の結果に出る **Dispatch ID**(`ctx_…` の形)を、役割ごとに控える。以後のやり取りはこの ID で行う。書き方はオプションで違う。`send` の宛先(`--to`)には `dispatch:ctx_…` と前に `dispatch:` を付け、`worker-show`・`worker-release`・`worker-stop` などの `--dispatch` には `ctx_…` だけを書く(`dispatch:` を付けると `dispatch_not_found` で失敗する)。
 - `worker-start` が失敗したら、やり直さずに `failedStage` を読み、オーナーに報告する。
 - 2人を起動したら、**ターンを終える**。Orca が起こしてくれる。見回り(ポーリング)・`sleep`・監視のスクリプトは使わない。
 
@@ -86,7 +86,7 @@ orca orchestration worker-start --worktree new-child --base-branch origin/main -
 ```sh
 gh pr view <PR番号> --json state,mergedAt          # MERGED であることを確かめる
 orca orchestration worker-list                        # 開いたままの作業役を確かめる
-orca orchestration worker-release --dispatch <ID>     # 役割ごとに、最新の ID で閉じる
+orca orchestration worker-release --dispatch ctx_<…>  # 役割ごとに、最新の ID で閉じる(dispatch: は付けない)
 orca worktree rm --worktree name:issue-<番号>-impl --delete-branch
 orca worktree rm --worktree name:issue-<番号>-review --delete-branch
 git branch --list "*issue-<番号>*"                    # 残ったブランチを確かめる
