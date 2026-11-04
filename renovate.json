@@ -1,0 +1,48 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "設定の理由は docs/learning/renovate.md にある",
+  "extends": ["config:recommended", "helpers:pinGitHubActionDigests"],
+  "timezone": "Asia/Tokyo",
+  "schedule": ["before 9am on monday"],
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "minimumReleaseAge": "7 days",
+  "rangeStrategy": "bump",
+  "automerge": false,
+  "semanticCommits": "enabled",
+  "semanticCommitScope": "deps",
+  "packageRules": [
+    {
+      "description": "npm の更新は build(deps)。config:recommended は本番用の依存関係を fix にするので上書きする",
+      "matchManagers": ["npm"],
+      "semanticCommitType": "build"
+    },
+    {
+      "description": "GitHub Actions(Trivy のイメージを含む)の更新は ci(deps)",
+      "matchManagers": ["github-actions"],
+      "semanticCommitType": "ci"
+    },
+    {
+      "description": "npm のマイナー・パッチは1つにまとめる。メジャーは個別",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "npm non-major dependencies"
+    },
+    {
+      "description": "GitHub Actions のマイナー・パッチ・SHA の更新は1つにまとめる。メジャーは個別",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "groupName": "github-actions non-major"
+    },
+    {
+      "description": "typescript-eslint が 6.1 未満にしか対応していないため、6.0 系にとどめる(ADR 0017)",
+      "matchPackageNames": ["typescript"],
+      "allowedVersions": "<6.1.0"
+    },
+    {
+      "description": "Node.js は 24 系に固定している(package.json の engines)。型定義も合わせる",
+      "matchPackageNames": ["node", "@types/node"],
+      "allowedVersions": "<25"
+    }
+  ]
+}
