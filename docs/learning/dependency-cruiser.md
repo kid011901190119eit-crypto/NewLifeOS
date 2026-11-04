@@ -25,6 +25,7 @@ ESLint は1ファイルずつ検査するので速いが、グラフ全体を見
 - `tsPreCompilationDeps: true`: `import type` も依存として数える。型だけの import かどうかは `dependencyTypes` に `type-only` として入る。
 - `no-circular`: 循環依存を禁止する。1つの循環は、循環の中の1ファイルとして1件だけ報告される。
 - `no-unresolvable-workspace-package`: `@lifeos/…` が解決できないときにエラーにする。`@lifeos/core` は `exports` によってビルドの成果物(`dist`)に解決されるので、ビルドの前に実行すると依存が見えなくなり、何も言わずに成功してしまうため。Turborepo の `lint:deps` タスクが core のビルドを待つのも、同じ理由である。
+- 検査の出発点は、各パッケージの `src` だけにしている(ルートの `package.json` の `lint:deps`)。ビルドの成果物(`dist`)は、依存の行き先としては見えるが、その中はたどらない(`doNotFollow`)。ソースを消しても `dist` に古いファイルが残ることがあり、それを検査しないため。`exclude` で `dist` を外さないのは、`exclude` すると `dist` への依存そのものが結果から消え、`@lifeos/core` への依存を検査できなくなるためである。
 - `packages/config`(開発用の設定の共有)は §5.2 の表の対象外なので、どこから import してもよい。
 
 ### テスト
@@ -35,4 +36,4 @@ ESLint は1ファイルずつ検査するので速いが、グラフ全体を見
 
 - `pnpm lint`: ESLint と一緒に実行される(Turborepo のルートのタスク `//#lint:deps`)
 - `pnpm lint:deps`: dependency-cruiser だけを実行する(core を先にビルドしておくこと)
-- 依存の図を出したいとき: `pnpm exec depcruise packages apps --config .dependency-cruiser.mjs -T mermaid`
+- 依存の図を出したいとき: `pnpm exec depcruise "packages/*/src" "packages/modules/*/src" "apps/*/src" --config .dependency-cruiser.mjs -T mermaid`

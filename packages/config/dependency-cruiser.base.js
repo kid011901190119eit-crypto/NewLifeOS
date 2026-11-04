@@ -130,8 +130,10 @@ export function createDependencyCruiserConfig({ tsconfigPath } = {}) {
   return {
     forbidden,
     options: {
-      doNotFollow: { path: "node_modules" },
-      // dist は除かない。@lifeos/core への依存が dist に解決されるため
+      // dist は exclude にしない。exclude すると、dist に解決される @lifeos/core への依存まで消えるため。
+      // 検査の出発点を src だけにし(package.json の lint:deps)、dist の中はたどらないことで、
+      // 古いビルド結果が検査されないようにする
+      doNotFollow: { path: ["node_modules", "(^|/)dist/"] },
       exclude: { path: "(^|/)(tests/fixtures|coverage|\\.turbo)/" },
       // import type も依存として数える(型だけの import かどうかを検査するため)
       tsPreCompilationDeps: true,

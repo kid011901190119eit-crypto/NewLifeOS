@@ -10,7 +10,7 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "lint": "turbo run lint lint:deps",
-    "lint:deps": "depcruise packages apps --config .dependency-cruiser.mjs",
+    "lint:deps": "depcruise \"packages/*/src\" \"packages/modules/*/src\" \"apps/*/src\" --config .dependency-cruiser.mjs",
     "format": "turbo run prettier:write",
     "format:check": "turbo run prettier:check",
     "prettier:write": "prettier --write .",
