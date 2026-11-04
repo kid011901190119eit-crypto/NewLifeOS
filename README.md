@@ -46,7 +46,7 @@ pnpm lint        # すべての Lint(ESLint と dependency-cruiser)
 pnpm format:check  # 整形が必要なファイルの確認
 ```
 
-プルリクエストと main へのプッシュでは、GitHub Actions(`.github/workflows/ci.yml`)が同じチェック(Lint・整形・型チェック・テスト・ビルド)を自動で実行します。
+プルリクエストと main へのプッシュでは、GitHub Actions(`.github/workflows/ci.yml`)が同じチェック(Lint・整形・型チェック・テスト・ビルド)を自動で実行します。プルリクエストのタイトルは、`.github/workflows/pr-title.yml` が commitlint で Conventional Commits の形式かどうかを検査します(書き方は [`CONTRIBUTING.md`](CONTRIBUTING.md))。
 
 ほかのコマンドは [`AGENTS.md`「よく使うコマンド」](AGENTS.md#よく使うコマンド) を参照してください。
 

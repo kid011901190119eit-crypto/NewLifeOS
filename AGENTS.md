@@ -43,7 +43,9 @@
 18. 秘密情報は環境変数かSOPSで暗号化したファイルで扱う。平文でファイルに書かない。
 
 ### Git
-19. コミットメッセージはConventional Commits形式で書く(例: `feat(finance): 口座間移動の仕訳ルールを追加`)。
+19. コミットメッセージとプルリクエストのタイトルはConventional Commits形式で書く(例: `feat(finance): 口座間移動の仕訳ルールを追加`)。種類と範囲は `packages/config/commitlint.config.js` の一覧から選ぶ(一覧は `CONTRIBUTING.md` にもある)。
+   - Squash and merge なので、main に残るのはプルリクエストのタイトルである。タイトルはCIの `pr-title` ジョブ(commitlint)で検査される。
+   - パッケージ・モジュール・アプリを追加したら、範囲の一覧にも名前を足す(足し忘れるとテストが失敗する)。
 20. mainブランチに直接コミットしない。作業ごとにブランチを作る。
 
 ## よく使うコマンド
@@ -61,6 +63,7 @@
 | 整形(ファイルを書き換える) | `pnpm format` |
 | 1つのパッケージだけ | `pnpm --filter @lifeos/core test`(`test` は `typecheck`・`build`・`lint` にも置き換えられる) |
 | テストを監視モードで実行 | `pnpm --filter @lifeos/core exec vitest` |
+| メッセージの形式を確かめる | `printf '%s\n' 'feat(finance): 口座間移動を追加' \| pnpm --filter @lifeos/config exec commitlint --verbose` |
 | 開発用の依存関係を追加 | `pnpm --filter <パッケージ名> add -D <依存関係>`(追加の前にオーナーへ確認する) |
 
 > 未確定: ローカル起動のコマンドは、それを導入するプルリクエストで追記する。
