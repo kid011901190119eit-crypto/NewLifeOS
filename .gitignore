@@ -1,0 +1,42 @@
+# 依存関係
+node_modules/
+.pnpm-store/
+
+# ビルド成果物
+dist/
+build/
+coverage/
+.turbo/
+*.tsbuildinfo
+
+# 秘密情報(暗号化済みの *.enc.* と SOPS の設定は除く)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+age.key
+keys.txt
+
+# OpenTofu / Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log
+
+# テスト・ツール
+playwright-report/
+test-results/
+
+# エディタ・OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# ログ
+*.log
+logs/

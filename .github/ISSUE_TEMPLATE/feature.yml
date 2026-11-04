@@ -1,0 +1,33 @@
+name: 機能の追加・変更
+description: 新しい機能や、既存機能の変更を提案する
+title: "[機能] "
+labels: ["type: feature"]
+body:
+  - type: input
+    id: requirement
+    attributes:
+      label: 対応する要件ID
+      description: docs/spec.md の要件ID(例 FIN-02)。なければ「なし」
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: やりたいこと
+      description: 何ができるようになるのか
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 完了の条件
+      description: これが満たされたら完了、という条件(テストにする内容)
+      placeholder: |
+        - 移動元と移動先が同じ口座なら、登録を拒否する
+        - 移動すると、移動元の残高が減り、移動先の残高が増える
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: 補足

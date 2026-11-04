@@ -1,0 +1,32 @@
+name: バグ報告
+description: 期待どおりに動かない箇所を報告する
+title: "[バグ] "
+labels: ["type: bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: 何が起きたか
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 本来どうなるべきか
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 再現手順
+      placeholder: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: env
+    attributes:
+      label: 環境・ログ
+      description: 環境(ローカル / ステージング / 本番)、関連するログなど。秘密情報や実在の家計データは書かないこと

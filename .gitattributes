@@ -1,0 +1,10 @@
+# 改行コードをLFに統一する(WindowsでもCRLFに変換しない)
+* text=auto eol=lf
+
+# バイナリファイルは変換しない
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.zip binary
