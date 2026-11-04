@@ -28,3 +28,4 @@ ADR(Architecture Decision Record)は、「何を・なぜ決めたのか」を1�
 | [0015](0015-module-collaboration-and-boundaries.md) | モジュール間の連携は公開用の入口とZodで定義したイベントで行い、境界を3つの仕組みで検査する | 承認 |
 | [0016](0016-operations-routes-and-tools.md) | 処理は「操作」として共通にし、RESTのルートとMCPのツールは別々の薄い入口として書く | 承認 |
 | [0017](0017-typescript-6.md) | TypeScript は当面 6 系を使う(typescript-eslint が 7 系に未対応のため) | 承認 |
+| [0018](0018-lint-and-formatting.md) | Lint と整形の方針(境界のルールは ESLint と dependency-cruiser で別々に定義し同じフィクスチャでテストする、型情報を使った Lint) | 承認 |
