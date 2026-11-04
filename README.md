@@ -42,6 +42,8 @@ pnpm install     # 依存関係のインストール
 pnpm test        # すべてのテスト
 pnpm typecheck   # すべての型チェック
 pnpm build       # すべてのビルド
+pnpm lint        # すべての Lint(ESLint と dependency-cruiser)
+pnpm format:check  # 整形が必要なファイルの確認
 ```
 
 ほかのコマンドは [`AGENTS.md`「よく使うコマンド」](AGENTS.md#よく使うコマンド) を参照してください。
