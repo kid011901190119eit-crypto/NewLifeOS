@@ -23,6 +23,11 @@
       "semanticCommitType": "ci"
     },
     {
+      "description": "Docker Compose のイメージ(PostgreSQL・Valkey)の更新は build(deps)",
+      "matchManagers": ["docker-compose"],
+      "semanticCommitType": "build"
+    },
+    {
       "description": "npm のマイナー・パッチは1つにまとめる。メジャーは個別",
       "matchManagers": ["npm"],
       "matchUpdateTypes": ["minor", "patch"],

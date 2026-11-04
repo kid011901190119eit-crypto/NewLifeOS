@@ -14,6 +14,17 @@
     "test": {
       "dependsOn": ["^build"]
     },
+    "@lifeos/config#test": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/renovate.json",
+        "$TURBO_ROOT$/.gitignore",
+        "$TURBO_ROOT$/.github/workflows/**",
+        "$TURBO_ROOT$/deploy/compose/**"
+      ]
+    },
     "lint": {
       "dependsOn": ["^build"]
     },

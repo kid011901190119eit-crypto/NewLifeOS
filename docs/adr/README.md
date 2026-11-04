@@ -32,3 +32,4 @@ ADR(Architecture Decision Record)は、「何を・なぜ決めたのか」を1�
 | [0019](0019-clean-dist-before-build.md) | ビルドの前に dist を Node 標準の fs.rmSync で消し、Turborepo の clean タスクを build の前に実行する | 承認 |
 | [0020](0020-commitlint-and-pr-title.md) | commitlint でプルリクエストのタイトルを検査し、Squash の既定のタイトルをプルリクエストのタイトルにする | 承認 |
 | [0021](0021-security-scans-and-renovate.md) | CodeQL・Trivy で脆弱性を検査し(Trivy は公式イメージを digest で固定)、Renovate で依存関係の更新を週1回提案させる | 承認 |
+| [0022](0022-local-postgres-and-valkey.md) | ローカル開発用に PostgreSQL 18.6 と Valkey 9.1.3 を Docker Compose で動かす(digest で固定、名前付きボリューム、Valkey は AOF、ポートは 127.0.0.1 のみ) | 承認 |

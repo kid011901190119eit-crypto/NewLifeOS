@@ -114,6 +114,8 @@ describe("Renovate の設定(Issue #21)", () => {
       ["github-actions", "ci", "update actions/checkout action to v8"],
       ["github-actions", "ci", "update aquasec/trivy docker tag to v0.77.0"],
       ["github-actions", "ci", "update aquasec/trivy:0.76.1 docker digest to 1a2b3c4"],
+      ["docker-compose", "build", "update postgres docker tag to v18.7"],
+      ["docker-compose", "build", "update valkey/valkey:9.1.3 docker digest to 1a2b3c4"],
     ])("%s の更新は %s(deps): %s", async (manager, expectedType, subject) => {
       const type = rules.find(
         (rule) => rule.matchManagers?.includes(manager) && rule.semanticCommitType,

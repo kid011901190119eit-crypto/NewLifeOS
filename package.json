@@ -14,7 +14,12 @@
     "format": "turbo run prettier:write",
     "format:check": "turbo run prettier:check",
     "prettier:write": "prettier --write .",
-    "prettier:check": "prettier --check ."
+    "prettier:check": "prettier --check .",
+    "db:up": "docker compose -f deploy/compose/compose.yaml up -d --wait",
+    "db:down": "docker compose -f deploy/compose/compose.yaml down",
+    "db:status": "docker compose -f deploy/compose/compose.yaml ps",
+    "db:logs": "docker compose -f deploy/compose/compose.yaml logs -f",
+    "db:reset": "docker compose -f deploy/compose/compose.yaml down --volumes && docker compose -f deploy/compose/compose.yaml up -d --wait"
   },
   "devDependencies": {
     "@lifeos/config": "workspace:*",
