@@ -32,6 +32,14 @@ CodeQL との違い: CodeQL は**自分たちが書いたコード**の書き方
 
 GHCR(`ghcr.io/aquasecurity/trivy`)にも同じイメージ(digest も同じ)があるが、Renovate が GHCR の公開日時を読めず、「公開から7日待つ」設定が効かないので、Docker Hub を使う。
 
+### 新しい版の digest を確かめる
+
+Renovate が Trivy のイメージの更新を提案してきたら、マージの前に次を確かめる(v0.76.1 を固定したときに行った方法)。
+
+1. 版のリリースが、公式リポジトリの Security Advisories で問題とされていないこと(`gh api repos/aquasecurity/trivy/security-advisories`)。
+2. その版のタグで動いた公式のリリース用ワークフロー(`release.yaml`)の実行記録に、PR の digest が出力されていること。`gh run list -R aquasecurity/trivy --workflow release.yaml` で実行を探し、ジョブのログで `digest=sha256:…` を検索する。
+3. 同じ digest が GHCR(`ghcr.io/aquasecurity/trivy`)にもあること。乗っ取られたのが1つのレジストリだけなら、digest が食い違う。
+
 ### 2回動かす
 
 1. すべての深刻度の結果を SARIF(解析結果の標準形式)に書き出し、`github/codeql-action/upload-sarif` で Security タブの Code scanning に登録する(カテゴリ `trivy`)。CodeQL の結果と同じ画面で、一覧と履歴を見られる。

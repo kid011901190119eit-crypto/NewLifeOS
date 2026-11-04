@@ -103,11 +103,18 @@ describe("Renovate の設定(Issue #21)", () => {
     });
   });
 
+  // 説明の部分は Renovate の既定のテンプレートの形。semantic commits のとき、Renovate は1行目を小文字にする
   describe("プルリクエストのタイトルが commitlint を通る(ADR 0020)", () => {
     it.each([
-      ["npm", "build", "update dependency prettier to v3.9.11"],
-      ["github-actions", "ci", "update github actions"],
-    ])("%s の更新は %s(deps)", async (manager, expectedType, subject) => {
+      ["npm", "build", "update npm non-major dependencies"],
+      ["npm", "build", "update dependency eslint to v11"],
+      ["npm", "build", "update typescript-eslint monorepo to v9"],
+      ["npm", "build", "update dependency eslint-import-resolver-typescript to v4.4.6 [security]"],
+      ["github-actions", "ci", "update github-actions non-major"],
+      ["github-actions", "ci", "update actions/checkout action to v8"],
+      ["github-actions", "ci", "update aquasec/trivy docker tag to v0.77.0"],
+      ["github-actions", "ci", "update aquasec/trivy:0.76.1 docker digest to 1a2b3c4"],
+    ])("%s の更新は %s(deps): %s", async (manager, expectedType, subject) => {
       const type = rules.find(
         (rule) => rule.matchManagers?.includes(manager) && rule.semanticCommitType,
       )?.semanticCommitType;
