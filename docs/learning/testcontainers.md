@@ -87,18 +87,20 @@ Vitest の `globalSetup` で1回だけ起動する方法もある。テストフ
 
 Ryuk は、他のコンテナを消すために **Docker を操作できる強い権限**(Docker のソケット)を持つ。中身がすり替わると危ないので、PostgreSQL と同じく digest で固定する。Testcontainers は環境変数 `RYUK_CONTAINER_IMAGE` に書いたイメージを Ryuk に使うので、`startPostgres()` がこれを設定する。
 
-Ryuk の版は、Testcontainers の版と組で決まる(Testcontainers の中に既定の版が書いてある)。そのため、更新は次のように分担する。
+Ryuk の版は、Testcontainers の版と組で決まる(Testcontainers の中に既定の版が書いてある)。そのため、Renovate に**組ごと1つのプルリクエストで**上げさせる。
 
-| 何が変わるか | だれが更新するか | 検査 |
-|---|---|---|
-| 同じ版の digest | Renovate(`renovate.json` の `customManagers` が `ryuk-image.ts` を読む) | — |
-| Ryuk の版 | 人が手で上げる(Renovate には版の更新を提案させない) | Testcontainers の更新で既定の版が変わると、`ryuk-image.test.ts` が失敗する |
+| 設定(`renovate.json`) | 役割 |
+|---|---|
+| `customManagers` | `ryuk-image.ts` の Ryuk のイメージを読み、版と digest の両方を更新できるようにする |
+| `packageRules` の `groupName: "testcontainers"` | `testcontainers`・`@testcontainers/postgresql`(npm)と `testcontainers/ryuk`(Docker のイメージ)の更新を1つのプルリクエストにまとめる |
+| 同じ規則の `separateMajorMinor: false` | Renovate は既定でメジャーの更新を別のプルリクエストに分ける。分かれると組が崩れるので、メジャーもまとめる |
 
-Testcontainers の更新のプルリクエストで `ryuk-image.test.ts` が失敗したら、次の手順で直す。
+組が合っているかは `ryuk-image.test.ts` が検査する(入っている Testcontainers が既定で使う版と、`ryuk-image.ts` の版が同じか)。Renovate のプルリクエストで次のことが起きると、このテストが失敗してマージ前に気づける。
 
-1. 失敗の表示から、新しい既定の版(例: `testcontainers/ryuk:0.15.0`)を読む
-2. `docker buildx imagetools inspect testcontainers/ryuk:<版>` で digest(`Digest:` の行)を調べる
-3. `packages/db/src/testing/ryuk-image.ts` の版と digest を書き換える
+- Ryuk の新しい版だけが先に出て、Testcontainers はまだ古い版を使っている
+- Testcontainers が新しい Ryuk を使うようになったのに、Ryuk の新しい版が7日(`minimumReleaseAge`)を過ぎていない
+
+失敗したら、Testcontainers が使う版(失敗の表示に出る)に `ryuk-image.ts` を合わせる。digest は `docker buildx imagetools inspect testcontainers/ryuk:<版>` の `Digest:` の行で調べる。
 
 ## パスワード
 

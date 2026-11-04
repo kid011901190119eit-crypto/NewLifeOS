@@ -66,10 +66,10 @@
       "allowedVersions": "<25"
     },
     {
-      "description": "Ryuk の版は、Testcontainers が既定で使う版に手で合わせる(packages/db の ryuk-image.test.ts が食い違いを検出する)。digest の更新だけを提案する",
-      "matchPackageNames": ["testcontainers/ryuk"],
-      "matchUpdateTypes": ["major", "minor", "patch"],
-      "enabled": false
+      "description": "Ryuk の版は Testcontainers の版と組で決まるので、メジャーも含めて1つのプルリクエストで上げる(組が合わなければ packages/db の ryuk-image.test.ts が失敗する)",
+      "matchPackageNames": ["testcontainers", "@testcontainers/postgresql", "testcontainers/ryuk"],
+      "groupName": "testcontainers",
+      "separateMajorMinor": false
     }
   ]
 }

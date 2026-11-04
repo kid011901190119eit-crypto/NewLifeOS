@@ -14,6 +14,7 @@ interface PackageRule {
   matchUpdateTypes?: string[];
   allowedVersions?: string;
   groupName?: string;
+  separateMajorMinor?: boolean;
   semanticCommitType?: string;
   automerge?: boolean;
 }
@@ -155,9 +156,29 @@ describe("Testcontainers の Ryuk のイメージの更新(Issue #29)", () => {
     expect(groups?.currentDigest).toMatch(/^sha256:[0-9a-f]{64}$/);
   });
 
-  it("Ryuk は digest の更新だけを提案し、版は Testcontainers の更新に合わせて手で上げる", () => {
-    const rule = ruleFor("testcontainers/ryuk");
-    expect(rule?.enabled).toBe(false);
-    expect([...(rule?.matchUpdateTypes ?? [])].sort()).toEqual(["major", "minor", "patch"]);
+  // 組が合っているかは packages/db の ryuk-image.test.ts が検査する
+  const together = ["testcontainers", "@testcontainers/postgresql", "testcontainers/ryuk"];
+
+  it("Testcontainers と Ryuk の更新を、メジャーも含めて1つのプルリクエストにまとめる(版が組で決まるため)", () => {
+    const groupRules = rules.filter((rule) =>
+      together.every((name) => rule.matchPackageNames?.includes(name)),
+    );
+    expect(groupRules).toHaveLength(1);
+    expect(groupRules[0]?.groupName).toBeDefined();
+    expect(groupRules[0]?.separateMajorMinor).toBe(false);
+    expect(groupRules[0]?.matchUpdateTypes).toBeUndefined();
+  });
+
+  it("まとめる設定は npm のマイナー・パッチのまとめより後に書く(Renovate は後の設定で上書きする)", () => {
+    const groupIndex = rules.findIndex((rule) =>
+      rule.matchPackageNames?.includes("testcontainers"),
+    );
+    expect(groupIndex).toBeGreaterThan(rules.indexOf(ruleForManager("npm") as PackageRule));
+  });
+
+  it.each(together)("%s の更新を止めていない", (name) => {
+    expect(
+      rules.filter((rule) => rule.matchPackageNames?.includes(name) && rule.enabled === false),
+    ).toEqual([]);
   });
 });
