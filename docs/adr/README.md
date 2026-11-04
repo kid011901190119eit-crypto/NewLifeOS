@@ -20,3 +20,7 @@ ADR(Architecture Decision Record)は、「何を・なぜ決めたのか」を1�
 | [0007](0007-aws-for-external-monitoring.md) | AWSは外部死活監視にのみ使う | 承認 |
 | [0008](0008-tdd.md) | 開発はTDDで進める | 承認 |
 | [0009](0009-learning-first.md) | 主目的はオーナーの学習とし、理解を優先する | 承認 |
+| [0010](0010-finance-journal-rules.md) | 家計簿の仕訳ルール(移動の符号・収入ラベル・貸し借り) | 承認 |
+| [0011](0011-finance-needs-review.md) | 入力チェックに違反する取引も保存し、「要確認」は導出する | 承認 |
+| [0012](0012-finance-immutability-and-idempotency.md) | 取引は取消フラグと置き換えで変更し、冪等キーは専用テーブルで管理する | 承認 |
+| [0013](0013-finance-table-details.md) | 家計簿のテーブル設計の細部(ID・集計・取引の種別・開始残高) | 承認 |

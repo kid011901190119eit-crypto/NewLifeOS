@@ -16,6 +16,7 @@
 |---|---|
 | [`docs/spec.md`](docs/spec.md) | 仕様書(機能要件・非機能要件・アーキテクチャ・技術スタック) |
 | [`docs/roadmap.md`](docs/roadmap.md) | 実装ロードマップ(作る順番と各フェーズの完了の条件) |
+| [`docs/design/`](docs/design/) | 詳細設計(例: [家計簿のデータモデル](docs/design/finance-data-model.md)) |
 | [`docs/adr/`](docs/adr/) | 設計判断の記録(ADR) |
 | [`docs/learning/`](docs/learning/) | 導入した技術の解説(学習ノート) |
 | [`docs/runbooks/`](docs/runbooks/) | 障害対応の手順書 |
