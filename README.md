@@ -50,6 +50,8 @@ pnpm format:check  # 整形が必要なファイルの確認
 
 脆弱性は、CodeQL(`.github/workflows/codeql.yml`、自分たちのコード)と Trivy(`.github/workflows/trivy.yml`、依存関係)で、プルリクエストごとと毎週検査します。依存関係の更新は、Renovate(`renovate.json`)が毎週プルリクエストとして提案します。詳しくは学習ノートの [CodeQL](docs/learning/codeql.md)・[Trivy](docs/learning/trivy.md)・[Renovate](docs/learning/renovate.md) を参照してください。
 
+手元で PostgreSQL と Valkey を動かすには Docker Desktop が必要です。最初に `deploy/compose/.env.example` を `deploy/compose/.env` に複製し、`pnpm db:up` で起動します(停止は `pnpm db:down`)。詳しくは学習ノートの [Docker](docs/learning/docker.md)・[Docker Compose](docs/learning/docker-compose.md) を参照してください。
+
 ほかのコマンドは [`AGENTS.md`「よく使うコマンド」](AGENTS.md#よく使うコマンド) を参照してください。
 
 ## 技術スタック(予定)

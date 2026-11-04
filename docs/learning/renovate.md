@@ -6,7 +6,7 @@
 
 | 用語 | 意味 |
 |---|---|
-| マネージャー(manager) | 依存関係が書かれたファイルの種類。`npm`(package.json とロックファイル)、`github-actions`(ワークフローの `uses:`)など |
+| マネージャー(manager) | 依存関係が書かれたファイルの種類。`npm`(package.json とロックファイル)、`github-actions`(ワークフローの `uses:`)、`docker-compose`(`compose.yaml` の `image:`)など |
 | 更新の種類(update type) | `major`(互換性を壊しうる 1.x→2.x)・`minor`(機能の追加)・`patch`(修正)・`digest`(SHA や digest だけが変わる) |
 | プリセット(`extends`) | よく使う設定のまとまり。`config:recommended` は Renovate が推奨する基本の設定 |
 | パッケージルール(`packageRules`) | 特定の依存関係や種類にだけ効く設定。下に書いたものほど優先される |
@@ -33,12 +33,13 @@ GitHub には **Dependabot** という同じ目的の機能もある。Renovate 
 | `prHourlyLimit` | `2` | 1時間に作る PR は2本まで |
 | `minimumReleaseAge` | `7 days` | 公開から7日たった版だけを提案する |
 | `rangeStrategy` | `bump` | `^3.9.10` → `^3.9.11` のように、package.json の範囲の下限も上げる |
-| `semanticCommits` | `enabled` | PR のタイトルを Conventional Commits にする。npm は `build(deps): …`、Actions は `ci(deps): …` |
+| `semanticCommits` | `enabled` | PR のタイトルを Conventional Commits にする。npm と Docker Compose のイメージは `build(deps): …`、Actions は `ci(deps): …` |
 
 ### まとめ方
 
 - npm のマイナー・パッチは、1つの PR(`npm non-major dependencies`)にまとめる。
 - GitHub Actions(Trivy のイメージを含む)のマイナー・パッチ・SHA の更新は、1つの PR(`github-actions non-major`)にまとめる。
+- Docker Compose のイメージ(PostgreSQL・Valkey)はまとめず、イメージごとに PR にする。DB の版の変更は、1つずつ確かめたいため。
 - メジャーは、1つの依存関係につき1つの PR にする。互換性を壊しうるので、個別に確かめる。
 
 ### 版の制限

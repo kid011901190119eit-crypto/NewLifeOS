@@ -103,7 +103,7 @@ erDiagram
 ## 3. テーブル定義(`finance` スキーマ)
 
 共通の約束:
-- 主キーは UUIDv7(時刻順に並ぶUUID)。アプリで生成して渡す。DB側の既定値は PostgreSQL 18 の `uuidv7()` を使う(PostgreSQL のバージョンはフェーズ3で決める。18未満なら既定値なしでアプリ生成のみにする)。
+- 主キーは UUIDv7(時刻順に並ぶUUID)。アプリで生成して渡す。DB側の既定値は PostgreSQL 18 の `uuidv7()` を使う(PostgreSQL は 18 に決まった。ADR 0022)。
 - 日時は `timestamptz`(UTCで保存)。取引日だけは `date`(Asia/Tokyo の日付)。
 - 金額は `bigint`(円)。浮動小数点型は使わない。
 - 外部キーはすべて `ON DELETE RESTRICT`(物理削除しないため、連鎖削除は使わない)。

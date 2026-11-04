@@ -66,4 +66,18 @@
 | メッセージの形式を確かめる | `printf '%s\n' 'feat(finance): 口座間移動を追加' \| pnpm --filter @lifeos/config exec commitlint --verbose` |
 | 開発用の依存関係を追加 | `pnpm --filter <パッケージ名> add -D <依存関係>`(追加の前にオーナーへ確認する) |
 
-> 未確定: ローカル起動のコマンドは、それを導入するプルリクエストで追記する。
+### ローカル環境(PostgreSQL と Valkey)
+
+前提: Docker Desktop。最初に1回だけ `cp deploy/compose/.env.example deploy/compose/.env` で `.env` を作る(`.env` はコミットしない)。解説は [`docs/learning/docker-compose.md`](docs/learning/docker-compose.md)。
+
+| やりたいこと | コマンド |
+|---|---|
+| 起動し、ヘルスチェックが通るまで待つ | `pnpm db:up` |
+| 停止する(データは残る) | `pnpm db:down` |
+| 状態を確かめる(`(healthy)` なら準備完了) | `pnpm db:status` |
+| ログを見る | `pnpm db:logs` |
+| **データを消して**作り直す | `pnpm db:reset` |
+
+接続先は PostgreSQL が `127.0.0.1:5432`、Valkey が `127.0.0.1:6379`(ポートとパスワードは `.env` で変えられる)。
+
+> 未確定: アプリ(api・web など)のローカル起動のコマンドは、それを導入するプルリクエストで追記する。
