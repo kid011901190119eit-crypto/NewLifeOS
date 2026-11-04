@@ -8,9 +8,18 @@
   "scripts": {
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
-    "test": "turbo run test"
+    "test": "turbo run test",
+    "lint": "turbo run lint lint:deps",
+    "lint:deps": "depcruise \"packages/*/src\" \"packages/modules/*/src\" \"apps/*/src\" --config .dependency-cruiser.mjs",
+    "format": "turbo run prettier:write",
+    "format:check": "turbo run prettier:check",
+    "prettier:write": "prettier --write .",
+    "prettier:check": "prettier --check ."
   },
   "devDependencies": {
+    "@lifeos/config": "workspace:*",
+    "dependency-cruiser": "^18.7.2",
+    "prettier": "^3.9.10",
     "turbo": "^2.11.10"
   }
 }

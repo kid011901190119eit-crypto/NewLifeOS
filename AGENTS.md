@@ -54,8 +54,11 @@
 | すべてのテスト | `pnpm test` |
 | すべての型チェック | `pnpm typecheck` |
 | すべてのビルド | `pnpm build` |
-| 1つのパッケージだけ | `pnpm --filter @lifeos/core test`(`test` は `typecheck`・`build` にも置き換えられる) |
+| すべての Lint(ESLint と dependency-cruiser) | `pnpm lint` |
+| 整形が必要なファイルの確認(書き換えない) | `pnpm format:check` |
+| 整形(ファイルを書き換える) | `pnpm format` |
+| 1つのパッケージだけ | `pnpm --filter @lifeos/core test`(`test` は `typecheck`・`build`・`lint` にも置き換えられる) |
 | テストを監視モードで実行 | `pnpm --filter @lifeos/core exec vitest` |
 | 開発用の依存関係を追加 | `pnpm --filter <パッケージ名> add -D <依存関係>`(追加の前にオーナーへ確認する) |
 
-> 未確定: Lint(ESLint・Prettier)とローカル起動のコマンドは、それぞれを導入するプルリクエストで追記する。
+> 未確定: ローカル起動のコマンドは、それを導入するプルリクエストで追記する。

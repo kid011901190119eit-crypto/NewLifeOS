@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "baseUrl": ".",
+    "paths": {
+      "@lifeos/core": ["packages/core/src/index.ts"],
+      "@lifeos/core/web": ["packages/core/src/web/index.ts"],
+      "@lifeos/db": ["packages/db/src/index.ts"],
+      "@lifeos/ui": ["packages/ui/src/index.ts"],
+      "@lifeos/registry": ["packages/registry/src/server.ts"],
+      "@lifeos/alpha/server": ["packages/modules/alpha/src/server/index.ts"],
+      "@lifeos/alpha/web": ["packages/modules/alpha/src/web/index.ts"],
+      "@lifeos/alpha/public": ["packages/modules/alpha/src/public/index.ts"],
+      "@lifeos/beta/server": ["packages/modules/beta/src/server/index.ts"],
+      "@lifeos/beta/web": ["packages/modules/beta/src/web/index.ts"],
+      "@lifeos/beta/public": ["packages/modules/beta/src/public/index.ts"]
+    }
+  },
+  "include": ["packages", "apps"]
+}
