@@ -1,0 +1,3 @@
+# Markdown は対象外にする(Issue #8 で決定。入れるときは別のプルリクエストで整形する)
+*.md
+pnpm-lock.yaml
