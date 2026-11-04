@@ -9,6 +9,7 @@
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
+    "test:integration": "turbo run test:integration",
     "lint": "turbo run lint lint:deps",
     "lint:deps": "depcruise \"packages/*/src\" \"packages/modules/*/src\" \"apps/*/src\" --config .dependency-cruiser.mjs",
     "format": "turbo run prettier:write",

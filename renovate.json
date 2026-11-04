@@ -11,6 +11,17 @@
   "automerge": false,
   "semanticCommits": "enabled",
   "semanticCommitScope": "deps",
+  "customManagers": [
+    {
+      "description": "Testcontainers の後片付け係 Ryuk のイメージ(digest で固定)。理由は docs/learning/testcontainers.md",
+      "customType": "regex",
+      "managerFilePatterns": ["/^packages/db/src/testing/ryuk-image\\.ts$/"],
+      "matchStrings": [
+        "\"(?<depName>testcontainers/ryuk):(?<currentValue>\\d+\\.\\d+\\.\\d+)@(?<currentDigest>sha256:[0-9a-f]{64})\""
+      ],
+      "datasourceTemplate": "docker"
+    }
+  ],
   "packageRules": [
     {
       "description": "npm の更新は build(deps)。config:recommended は本番用の依存関係を fix にするので上書きする",
@@ -25,6 +36,11 @@
     {
       "description": "Docker Compose のイメージ(PostgreSQL・Valkey)の更新は build(deps)",
       "matchManagers": ["docker-compose"],
+      "semanticCommitType": "build"
+    },
+    {
+      "description": "Ryuk の更新は build(deps)",
+      "matchManagers": ["custom.regex"],
       "semanticCommitType": "build"
     },
     {
@@ -48,6 +64,12 @@
       "description": "Node.js は 24 系に固定している(package.json の engines)。型定義も合わせる",
       "matchPackageNames": ["node", "@types/node"],
       "allowedVersions": "<25"
+    },
+    {
+      "description": "Ryuk の版は、Testcontainers が既定で使う版に手で合わせる(packages/db の ryuk-image.test.ts が食い違いを検出する)。digest の更新だけを提案する",
+      "matchPackageNames": ["testcontainers/ryuk"],
+      "matchUpdateTypes": ["major", "minor", "patch"],
+      "enabled": false
     }
   ]
 }

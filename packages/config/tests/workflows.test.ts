@@ -20,6 +20,12 @@ describe("GitHub Actions のワークフロー", () => {
     );
   });
 
+  it("CI で、結合テスト(pnpm test:integration)を integration というジョブで実行する(Issue #29)", () => {
+    const ci = readFileSync(path.join(workflowsDir, "ci.yml"), "utf8");
+    expect(ci).toMatch(/^ {8}task: \[.*\bintegration\b.*\]$/m);
+    expect(ci).toMatch(/^ {10}- task: integration\n {12}command: pnpm test:integration$/m);
+  });
+
   describe.each(workflowFiles)("%s", (file) => {
     it("外部のアクションはコミットの SHA で、コンテナイメージは digest で固定する", () => {
       const unpinned = usesOf(file).filter(

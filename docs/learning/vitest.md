@@ -49,4 +49,5 @@ export default defineConfig({
 ### コマンド
 
 - `pnpm test`: すべてのパッケージのテストを1回実行する(各パッケージで `vitest run`)
+- `pnpm test:integration`: 本物の PostgreSQL を使う結合テスト(`*.integration.test.ts`)を実行する。解説は [Testcontainers](testcontainers.md)
 - `pnpm --filter @lifeos/core exec vitest`: ファイルを保存するたびにテストを実行し直す監視モード。TDD で手を動かすときに使う

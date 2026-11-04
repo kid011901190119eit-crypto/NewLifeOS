@@ -46,11 +46,13 @@ pnpm lint        # すべての Lint(ESLint と dependency-cruiser)
 pnpm format:check  # 整形が必要なファイルの確認
 ```
 
-プルリクエストと main へのプッシュでは、GitHub Actions(`.github/workflows/ci.yml`)が同じチェック(Lint・整形・型チェック・テスト・ビルド)を自動で実行します。プルリクエストのタイトルは、`.github/workflows/pr-title.yml` が commitlint で Conventional Commits の形式かどうかを検査します(書き方は [`CONTRIBUTING.md`](CONTRIBUTING.md))。
+プルリクエストと main へのプッシュでは、GitHub Actions(`.github/workflows/ci.yml`)が同じチェック(Lint・整形・型チェック・テスト・結合テスト・ビルド)を自動で実行します。プルリクエストのタイトルは、`.github/workflows/pr-title.yml` が commitlint で Conventional Commits の形式かどうかを検査します(書き方は [`CONTRIBUTING.md`](CONTRIBUTING.md))。
 
 脆弱性は、CodeQL(`.github/workflows/codeql.yml`、自分たちのコード)と Trivy(`.github/workflows/trivy.yml`、依存関係)で、プルリクエストごとと毎週検査します。依存関係の更新は、Renovate(`renovate.json`)が毎週プルリクエストとして提案します。詳しくは学習ノートの [CodeQL](docs/learning/codeql.md)・[Trivy](docs/learning/trivy.md)・[Renovate](docs/learning/renovate.md) を参照してください。
 
 手元で PostgreSQL と Valkey を動かすには Docker Desktop が必要です。最初に `deploy/compose/.env.example` を `deploy/compose/.env` に複製し、`pnpm db:up` で起動します(停止は `pnpm db:down`)。詳しくは学習ノートの [Docker](docs/learning/docker.md)・[Docker Compose](docs/learning/docker-compose.md) を参照してください。
+
+本物の PostgreSQL を使う結合テストは `pnpm test:integration` で実行します(Docker Desktop を起動しておく)。テストのたびに Testcontainers が使い捨ての PostgreSQL を起動し、終わったら消します。CI では `integration` のジョブが実行します。詳しくは学習ノートの [Testcontainers](docs/learning/testcontainers.md) を参照してください。
 
 ### AIエージェントと Orca で作業するとき
 
