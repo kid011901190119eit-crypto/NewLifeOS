@@ -86,6 +86,37 @@
 - プルリクエストのタイトルは Conventional Commits にする(ルール19)。本文は `.github/pull_request_template.md` に沿って書き、「関連Issue・要件」に `Closes #<番号>` を入れる。
 - 作成後に `gh pr checks <番号> --watch` を実行し、結果をオーナーに見せる。
 
+## 役割を分けて Issue を進めるとき
+
+オーナーが Claude Code で `/start <やりたいこと>` と入力すると、3つの役割の Claude Code が分担して、Issue の作成からプルリクエストの報告までを進める。Orca のオーケストレーション機能(実験的な機能)を使う。解説は [`docs/learning/orca-orchestration.md`](docs/learning/orca-orchestration.md)、判断の記録は [ADR 0024](docs/adr/0024-coordinator-implementer-reviewer.md) にある。
+
+| 役割 | すること | 詳しい手順 |
+|---|---|---|
+| 指揮役 | オーナーと話す唯一の役。Issue を作り、実装役とレビュー役を起動し、質問・回答・指摘を受け渡し、最後に報告する | [`docs/agents/coordinator.md`](docs/agents/coordinator.md) |
+| 実装役 | 「Issue に取り組むときの標準の手順」で作業する。計画の確認と質問は指揮役を通す | [`docs/agents/implementer.md`](docs/agents/implementer.md) |
+| レビュー役 | 実装を見る前に「合格の条件」のチェックリストを作り、実装をそれで検査する。わざと壊して、チェックが本当に失敗するかも確かめる | [`docs/agents/reviewer.md`](docs/agents/reviewer.md) |
+
+### 3つの役割に共通して守ること
+- **オーナーと話すのは指揮役だけ。** 実装役とレビュー役は、`orca orchestration ask` か `worker_done` で指揮役に伝える。
+- **判断の分かれ目は、指揮役が代わりに決めない。** 選択肢・利点・欠点を省かずにオーナーに見せる(ルール9)。
+- **Issue の作成・push は、オーナーの承認を得てから行う。マージはオーナーが行う。**
+- **レビュー役はコードを直さず、コミットも push もしない。** わざと壊す実験は、自分のワークツリーで実装役のブランチを読み取り用に開いて行い、終わったら元に戻す。
+- **指摘と修正の往復は2回まで。** それでも残る指摘は、オーナーが判断する。
+- **待つときはターンを終える。** 見回り(ポーリング)や `sleep` をしない。Orca が起こしてくれる。何もしていないエージェントは Claude Pro の利用枠を使わない。
+- レビュー役のチェックリストと指摘は、最後にプルリクエストのレビューコメントとして残す。
+
+### 手で戻る方法
+仕組みがうまく動かないとき(作業役が起動しない、報告が届かない、利用枠の上限で止まった、など)は、次の順で手に戻す。作業の成果はブランチとコミットに残っているので、途中からやり直せる。
+
+1. 指揮役で `orca orchestration worker-list` を実行し、作業役の状態を確かめる。止めるときは `orca orchestration worker-stop --dispatch <ID>` を実行する。止めたと確かめられないとき(`stop_unknown`)は、Orca の画面でそのタブを閉じる。
+2. 実装は、実装役のワークツリーを Orca で開き、新しい Claude Code のセッションで `/issue <番号>` を実行して続ける。オーナーが直接話す、これまでの進め方である。
+3. レビューは、レビュー役のワークツリーで `/review-issue <番号> <実装のブランチ>` を実行する。
+4. 利用枠の上限で止まっただけなら、枠が戻ってから、指揮役が `orca orchestration send` で再開させてもよい。
+5. Orca の管理の状態そのものが壊れたときだけ、`orca orchestration reset` を使う。消える範囲を確かめてから、オーナーが実行する。
+
+### マージのあとの片付け
+指揮役が、作業役を閉じる(`worker-release`)・子ワークツリーを消す(`orca worktree rm`)・ローカルとリモートのブランチを消す、の一覧をオーナーに見せ、承認を得てから行う。コマンドは [`docs/agents/coordinator.md`「6. マージのあとの片付け」](docs/agents/coordinator.md#6-マージのあとの片付け)にある。
+
 ## よく使うコマンド
 
 前提: Node.js 24、pnpm 12(版はルートの `package.json` の `engines` と `packageManager` で固定している)。コマンドはリポジトリのルートで実行する。

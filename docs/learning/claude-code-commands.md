@@ -36,4 +36,13 @@ Issue #$ARGUMENTS に取り組みます。…
 - `$ARGUMENTS`: コマンド名のあとに入力した文字(`/issue 25` なら `25`)に置き換わる。
 - 番号を付け忘れると `$ARGUMENTS` が空になるので、そのときはオーナーに番号を聞くように書いてある。
 
+### ほかのコマンド
+
+| コマンド | ファイル | 何をする |
+|---|---|---|
+| `/start <やりたいこと>` | `.claude/commands/start.md` | 指揮役として、Issue の作成から報告までを進める([Orca のオーケストレーション](orca-orchestration.md)) |
+| `/review-issue <番号> [ブランチ]` | `.claude/commands/review-issue.md` | レビュー役の手順を、指揮役なしで手で始める |
+
+どちらも `/issue` と同じく、手順の中身は書かず、`docs/agents/` の手順書に従うように伝えるだけにしてある。`/review-issue` という名前にしたのは、Claude Code に組み込みの `/review` とぶつからないようにするためである。
+
 参考: [Claude Code のドキュメント(Slash commands / Skills)](https://code.claude.com/docs/en/slash-commands)

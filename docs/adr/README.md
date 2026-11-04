@@ -34,3 +34,4 @@ ADR(Architecture Decision Record)は、「何を・なぜ決めたのか」を1�
 | [0021](0021-security-scans-and-renovate.md) | CodeQL・Trivy で脆弱性を検査し(Trivy は公式イメージを digest で固定)、Renovate で依存関係の更新を週1回提案させる | 承認 |
 | [0022](0022-local-postgres-and-valkey.md) | ローカル開発用に PostgreSQL 18.6 と Valkey 9.1.3 を Docker Compose で動かす(digest で固定、名前付きボリューム、Valkey は AOF、ポートは 127.0.0.1 のみ) | 承認 |
 | [0023](0023-issue-workflow-and-worktree-setup.md) | Issue の標準の手順は AGENTS.md に1か所でまとめ、ワークツリーの準備は orca.yaml と .worktreeinclude で自動にする | 承認 |
+| [0024](0024-coordinator-implementer-reviewer.md) | 指揮役・実装役・レビュー役に分け、Orca のオーケストレーションで Issue を半自動で進める | 承認 |
