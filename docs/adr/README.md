@@ -24,3 +24,6 @@ ADR(Architecture Decision Record)は、「何を・なぜ決めたのか」を1�
 | [0011](0011-finance-needs-review.md) | 入力チェックに違反する取引も保存し、「要確認」は導出する | 承認 |
 | [0012](0012-finance-immutability-and-idempotency.md) | 取引は取消フラグと置き換えで変更し、冪等キーは専用テーブルで管理する | 承認 |
 | [0013](0013-finance-table-details.md) | 家計簿のテーブル設計の細部(ID・集計・取引の種別・開始残高) | 承認 |
+| [0014](0014-module-manifest-and-registration.md) | モジュールのマニフェストをサーバー用と画面用に分け、一覧ファイルで静的に登録する | 承認 |
+| [0015](0015-module-collaboration-and-boundaries.md) | モジュール間の連携は公開用の入口とZodで定義したイベントで行い、境界を3つの仕組みで検査する | 承認 |
+| [0016](0016-operations-routes-and-tools.md) | 処理は「操作」として共通にし、RESTのルートとMCPのツールは別々の薄い入口として書く | 承認 |

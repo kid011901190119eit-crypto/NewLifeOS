@@ -13,3 +13,4 @@
 ## 一覧
 
 - [複式簿記の仕訳と遅延制約](double-entry-bookkeeping.md)
+- [モジュールの登録と境界](module-registration-and-boundaries.md)
