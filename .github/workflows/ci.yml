@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# 同じブランチ(プルリクエスト)で新しい実行が始まったら、古い実行を取り消す
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    # ジョブ名は必須チェックの名前になる。変えるときはルールセットも直す
+    name: ${{ matrix.task }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        task: [lint, format, typecheck, test, build]
+        include:
+          - task: lint
+            command: pnpm lint
+          - task: format
+            command: pnpm format:check
+          - task: typecheck
+            command: pnpm typecheck
+          - task: test
+            command: pnpm test
+          - task: build
+            command: pnpm build
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # 版は package.json の packageManager から読む
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+
+      # 版は package.json の engines.node から読む
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: package.json
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: ${{ matrix.command }}
