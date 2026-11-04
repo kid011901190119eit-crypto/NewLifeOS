@@ -23,3 +23,4 @@
 - [eslint-plugin-boundaries(モジュールの境界の検査)](eslint-plugin-boundaries.md)
 - [dependency-cruiser(依存のグラフの検査)](dependency-cruiser.md)
 - [GitHub Actions(CI の自動実行)](github-actions.md)
+- [commitlint と Conventional Commits(コミットメッセージの形式の検査)](commitlint.md)

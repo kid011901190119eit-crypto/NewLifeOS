@@ -66,4 +66,4 @@
 
 ### 必須チェックにする
 
-CI のジョブを必須にする設定は、ワークフローではなく、GitHub の画面(Settings → Rules → Rulesets)で行う。「Require status checks to pass」に、ジョブの名前(`lint`・`format`・`typecheck`・`test`・`build`)を登録する。
+CI のジョブを必須にする設定は、ワークフローではなく、GitHub の画面(Settings → Rules → Rulesets)で行う。「Require status checks to pass」に、ジョブの名前(`lint`・`format`・`typecheck`・`test`・`build`、プルリクエストのタイトルを検査する `pr-title`)を登録する。`pr-title` は別のワークフロー([`.github/workflows/pr-title.yml`](../../.github/workflows/pr-title.yml))にある。詳しくは [commitlint と Conventional Commits](commitlint.md) を参照。

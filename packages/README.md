@@ -7,7 +7,7 @@
 | `core/` | 全モジュールが依存する基盤(認証、イベント、ジョブ、通知、監査ログ、モジュール登録) |
 | `db/` | DB接続とマイグレーションの実行の仕組み |
 | `ui/` | 画面の共通部品 |
-| `config/` | TypeScript・Vitest・ESLintなどの共通設定 |
+| `config/` | TypeScript・Vitest・ESLint・commitlintなどの共通設定 |
 | `modules/finance/` | 家計簿モジュール |
 | `modules/calendar/` | カレンダーモジュール |
 | `registry/` | サーバー側で載せるモジュールの一覧(api・mcp・worker・migrate が共通で読む) |

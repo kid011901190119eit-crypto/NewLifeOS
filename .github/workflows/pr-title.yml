@@ -1,0 +1,41 @@
+name: PR title
+
+# Squash and merge では、プルリクエストのタイトルが main のコミットメッセージになる(ADR 0020)。
+# ci.yml と分けるのは、タイトルの編集(edited)で Lint などのジョブまで再実行しないため。
+# synchronize も必要: 必須チェックは最新のコミットごとに結果が要る。
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+concurrency:
+  group: pr-title-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  pr-title:
+    # ジョブ名は必須チェックの名前になる。変えるときはルールセットも直す
+    name: pr-title
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: package.json
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # タイトルは環境変数で渡し、シェルのコマンドには埋め込まない(記号を含むタイトルでも安全にする)
+      - name: commitlint でタイトルを検査する
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: printf '%s\n' "$PR_TITLE" | pnpm --filter @lifeos/config exec commitlint --verbose
