@@ -12,4 +12,4 @@
 
 ## 一覧
 
-(まだありません)
+- [複式簿記の仕訳と遅延制約](double-entry-bookkeeping.md)
