@@ -24,3 +24,6 @@
 - [dependency-cruiser(依存のグラフの検査)](dependency-cruiser.md)
 - [GitHub Actions(CI の自動実行)](github-actions.md)
 - [commitlint と Conventional Commits(コミットメッセージの形式の検査)](commitlint.md)
+- [CodeQL(自分たちのコードの脆弱性の検査)](codeql.md)
+- [Trivy(依存関係の脆弱性の検査)](trivy.md)
+- [Renovate(依存関係の更新の自動提案)](renovate.md)

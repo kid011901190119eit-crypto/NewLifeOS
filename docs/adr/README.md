@@ -31,3 +31,4 @@ ADR(Architecture Decision Record)は、「何を・なぜ決めたのか」を1�
 | [0018](0018-lint-and-formatting.md) | Lint と整形の方針(境界のルールは ESLint と dependency-cruiser で別々に定義し同じフィクスチャでテストする、型情報を使った Lint) | 承認 |
 | [0019](0019-clean-dist-before-build.md) | ビルドの前に dist を Node 標準の fs.rmSync で消し、Turborepo の clean タスクを build の前に実行する | 承認 |
 | [0020](0020-commitlint-and-pr-title.md) | commitlint でプルリクエストのタイトルを検査し、Squash の既定のタイトルをプルリクエストのタイトルにする | 承認 |
+| [0021](0021-security-scans-and-renovate.md) | CodeQL・Trivy で脆弱性を検査し(Trivy は公式イメージを digest で固定)、Renovate で依存関係の更新を週1回提案させる | 承認 |

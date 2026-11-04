@@ -48,6 +48,8 @@ pnpm format:check  # 整形が必要なファイルの確認
 
 プルリクエストと main へのプッシュでは、GitHub Actions(`.github/workflows/ci.yml`)が同じチェック(Lint・整形・型チェック・テスト・ビルド)を自動で実行します。プルリクエストのタイトルは、`.github/workflows/pr-title.yml` が commitlint で Conventional Commits の形式かどうかを検査します(書き方は [`CONTRIBUTING.md`](CONTRIBUTING.md))。
 
+脆弱性は、CodeQL(`.github/workflows/codeql.yml`、自分たちのコード)と Trivy(`.github/workflows/trivy.yml`、依存関係)で、プルリクエストごとと毎週検査します。依存関係の更新は、Renovate(`renovate.json`)が毎週プルリクエストとして提案します。詳しくは学習ノートの [CodeQL](docs/learning/codeql.md)・[Trivy](docs/learning/trivy.md)・[Renovate](docs/learning/renovate.md) を参照してください。
+
 ほかのコマンドは [`AGENTS.md`「よく使うコマンド」](AGENTS.md#よく使うコマンド) を参照してください。
 
 ## 技術スタック(予定)

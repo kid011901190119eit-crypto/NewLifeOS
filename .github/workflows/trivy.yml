@@ -1,0 +1,50 @@
+name: Trivy
+
+# 依存関係(pnpm-lock.yaml)の既知の脆弱性を検査する。コンテナイメージの検査はフェーズ7で足す。
+# コードが変わらなくても新しい脆弱性は見つかるので、毎週も実行する。
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 15 * * 0" # 月曜 0:00(日本時間)
+
+concurrency:
+  group: trivy-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  trivy:
+    # ジョブ名は必須チェックの名前になる。変えるときはルールセットも直す
+    name: trivy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      security-events: write # 結果を Security タブに登録する
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # trivy-action は使わず、公式イメージを digest で固定して直接動かす(2026年3月の乗っ取り事件を踏まえた。学習ノート参照)。
+      # 依存関係はすべて devDependencies なので --include-dev-deps が要る(既定では報告されない)
+      - name: すべての深刻度の結果を SARIF に書き出す
+        uses: docker://aquasec/trivy:0.76.1@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c
+        with:
+          args: fs --scanners vuln --include-dev-deps --format sarif --output trivy-results.sarif .
+
+      - name: 結果を Security タブに登録する
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        with:
+          sarif_file: trivy-results.sarif
+          category: trivy
+
+      # 失敗の基準: HIGH 以上で、修正版が出ているもの。脆弱性 DB は前のステップで取得済み($HOME が共有される)
+      - name: HIGH 以上の修正できる脆弱性があれば失敗させる
+        uses: docker://aquasec/trivy:0.76.1@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c
+        with:
+          args: fs --scanners vuln --include-dev-deps --severity HIGH,CRITICAL --ignore-unfixed --skip-db-update --exit-code 1 .
