@@ -1,6 +1,6 @@
 # LifeOS 仕様書(ドラフト v0.1)
 
-> ステータス: **途中**(要件定義・非機能要件・技術選定まで確定。実装ロードマップは [`roadmap.md`](roadmap.md) で確定。家計簿のDB設計は §5 と [`design/finance-data-model.md`](design/finance-data-model.md) で確定)
+> ステータス: **途中**(要件定義・非機能要件・技術選定まで確定。実装ロードマップは [`roadmap.md`](roadmap.md) で確定。家計簿のDB設計は §5 と [`design/finance-data-model.md`](design/finance-data-model.md) で確定。モジュールの仕組みは §4.3 と [`design/module-system.md`](design/module-system.md) で確定)
 > 最終更新: 2026-11-04
 > この文書は人間とAIコーディングエージェントの両方が読む前提で書かれている。「未確定」と書かれた箇所は、実装前に必ず人間に確認すること。
 
@@ -166,27 +166,48 @@ IDは実装・テスト・Issueで参照する。
    - そのモジュールが公開する問い合わせ用インターフェース
 3. モジュールは、コアが提供する機能(認証、イベント、ジョブ、通知、監査ログ、エージェントのツール登録)だけに依存する。
 
-### 4.3 モジュールのマニフェスト(案)
-各モジュールは次のような定義を持ち、コアはそれを読み込むだけにする。新しいモジュールの追加は「マニフェストを登録する」ことで完結させる。
+### 4.3 モジュールのマニフェスト
+> **ステータス: 確定**(Issue #4)。詳細(型定義・登録の流れ・定義例・テストケースの一覧)は [`design/module-system.md`](design/module-system.md) を正とする。判断の経緯は ADR 0014〜0016。
+
+各モジュールは次のような定義を持ち、コアはそれを読み込むだけにする。新しいモジュールの追加は「マニフェストを一覧に登録する」ことで完結させる。
+
+- **マニフェストはサーバー用と画面用の2つ**に分け、同じ `id` で結び付ける(ADR 0014)。画面はブラウザで動くため、サーバーのコードを混ぜない。
+- **登録は一覧ファイルに手で書く**(静的な登録)。サーバー側は `packages/registry/src/server.ts`(api・mcp・worker・migrate が共通で読む)、画面側は `apps/web/src/modules.ts`。
+- **`id` を接頭辞として強制する**: DBスキーマ `<id>`、API `/api/<id>/...`、画面 `/<id>/...`、ツール `<id>.<name>`、イベント `<id>.<entity>.<verb過去形>`、ジョブ `<id>.<name>`。違反はコアが起動時に検査して止める。
+- **処理は「操作」として共通にし**、REST のルートと MCP のツールは、それを呼ぶ薄い入口として別々に書く(ADR 0016)。
 
 ```ts
+// サーバー用(packages/modules/finance/src/server/index.ts)
 export default defineModule({
   id: "finance",
-  migrations: "./migrations",
-  tools: [addTransaction, transfer, getBalances /* ... */], // MCPで公開する操作
-  events: { emits: ["finance.transaction.created"], listens: [] },
-  jobs: [/* { cron, run } */],
-  routes: financeRoutes,      // api に追加されるエンドポイント
-  ui: financeUiEntry,         // web に追加される画面
+  displayName: "家計簿",
+  migrations: { folder: fileURLToPath(new URL("../../migrations", import.meta.url)) },
+  routes: financeRoutes,                          // /api/finance に載る
+  tools: [addTransactionTool, getBalancesTool /* ... */], // finance.add_transaction など
+  events: { emits: [transactionCreated, transactionVoided], listens: [] },
+  jobs: [],                                       // { name, schedule?: { cron }, run }
+  changeHandlers: { transaction: transactionChangeHandler }, // 変更履歴の取り消し(CORE-04)
+});
+
+// 画面用(packages/modules/finance/src/web/index.ts)
+export default defineModuleUi({
+  id: "finance",
+  displayName: "家計簿",
+  menu: [{ label: "取引", to: "/finance/transactions", order: 100 }],
+  routes: (parent) => /* TanStack Router のルート。ページは遅延読み込み */,
 });
 ```
 
-> **未確定**: `defineModule` の正確な型、UIの動的登録の方法。実装時に設計してADRに残す。
+- マイグレーションはモジュールごとのフォルダ・スキーマ・適用履歴に分け、専用の `migrate` コマンドが `core` を先に、次に一覧の順に適用する。
+- コアはモジュールを import しない。変更履歴の取り消しなど、コアの機能にモジュールの協力が必要なときは、モジュールがマニフェストに登録した関数をコアが呼ぶ。
+- 境界は、package.json の `exports`、ESLint の境界ルール、アーキテクチャテストの3つで検査する(ADR 0015)。
 
 ### 4.4 イベント
 - 書き込みと同じDBトランザクションでoutboxテーブルにイベントを記録し、ワーカーが配送する(Transactional Outbox)。
 - イベント名は `<module>.<entity>.<verb過去形>` とする(例: `finance.transaction.created`)。
-- 受け手は冪等(同じイベントを2回受けても結果が変わらない)に作る。
+- 受け手は冪等(同じイベントを2回受けても結果が変わらない)に作る。コアが受け手ごとの処理済みのイベントを記録し、2回目の配送では処理しない。
+- イベントは名前・版番号・Zod スキーマで定義し、発行時と受信時に中身を検証する。中身の形を変えたら版番号を上げる(ADR 0015)。
+- 他のモジュールの読み取りは、そのモジュールの公開用の入口(`@lifeos/<id>/public`)だけを使う。MVPでは公開用の入口は読み取り専用とする(ADR 0015)。
 
 ---
 
@@ -363,7 +384,7 @@ export default defineModule({
 ### 10.2 リポジトリ構成(案)
 ```
 apps/       web / api / mcp / worker
-packages/   core / modules/finance / modules/calendar / db / ui / config
+packages/   core / modules/finance / modules/calendar / registry / db / ui / config
 infra/      opentofu/(oracle / cloudflare / aws)
 deploy/     compose/ / k8s/(将来)
 docs/       spec.md(この文書) / adr/ / runbooks/ / design/ / learning/(導入した技術の解説)
@@ -401,6 +422,9 @@ CLAUDE.md   Claude Code用。AGENTS.md を読み込む
 | 0011 | 入力チェックに違反する取引も保存し(未分類勘定)、「要確認」は導出する |
 | 0012 | 取引は取消フラグと置き換えで変更し、冪等キーは専用テーブルで管理する |
 | 0013 | 家計簿のIDはUUIDv7、残高は基準日を渡す集計クエリ、取引の種別を保存、開始残高は1取引 |
+| 0014 | モジュールのマニフェストをサーバー用と画面用に分け、一覧ファイルで静的に登録する |
+| 0015 | モジュール間の連携は公開用の入口とZodで定義したイベントで行い、境界を3つの仕組みで検査する |
+| 0016 | 処理は「操作」として共通にし、RESTのルートとMCPのツールは別々の薄い入口として書く |
 
 ---
 
@@ -408,8 +432,9 @@ CLAUDE.md   Claude Code用。AGENTS.md を読み込む
 
 - [x] 家計簿のER図とテーブル定義の確定(§5)→ [`docs/design/finance-data-model.md`](design/finance-data-model.md)
 - [x] 移動の金額の符号規則、収入ラベルの扱い(§5.3)→ ADR 0010
-- [ ] `defineModule` の型とUIの動的登録の方法(§4.3)
+- [x] `defineModule` の型とUIの動的登録の方法(§4.3)→ [`docs/design/module-system.md`](design/module-system.md)、ADR 0014〜0016
 - [ ] 準拠するMCP認可仕様のバージョン(§6.2)
+- [ ] カレンダーの変更履歴と取り消し(CORE-04 と CAL-05 の両立。フェーズ9で決める)→ [`design/module-system.md` §9](design/module-system.md)
 - [x] 実装ロードマップ(作る順番)→ [`docs/roadmap.md`](roadmap.md)
 - [ ] ドメイン名
 - [ ] Oracle Cloudのホームリージョン(後から変更できない。ARMの空き容量も考慮)
