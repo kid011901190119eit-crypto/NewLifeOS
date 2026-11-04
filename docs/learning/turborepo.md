@@ -22,7 +22,8 @@
 ```json
 {
   "tasks": {
-    "build": { "dependsOn": ["^build"], "outputs": ["dist/**"] },
+    "clean": { "cache": false },
+    "build": { "dependsOn": ["^build", "clean"], "outputs": ["dist/**"] },
     "typecheck": { "dependsOn": ["^build"] },
     "test": { "dependsOn": ["^build"] }
   }
@@ -46,6 +47,13 @@
 ### キャッシュの確かめ方
 
 `pnpm build` を2回続けて実行すると、2回目は `cache hit, replaying logs` と表示され、`FULL TURBO` で一瞬で終わる。キャッシュは `.turbo/` に置かれる(`.gitignore` 済み)。
+
+### ビルドの前に dist を消す(Issue #10 で追加)
+
+- `tsc` は `dist/` を掃除しないので、消したソースの古い出力が残る。そこで build スクリプトを `pnpm run clean && tsc ...` にした。`clean` は `node -e "require('node:fs').rmSync('dist', { recursive: true, force: true })"`(Node 標準の機能でフォルダを中身ごと消す。`force` はフォルダがなくてもエラーにしない指定)。
+- ただし、**キャッシュから復元するときは build スクリプトが実行されない**。しかも復元は `outputs` のファイルを上書きするだけで、`dist/` にある余分なファイルは消さない。
+- そこで `turbo.json` に `clean` タスク(`cache: false` で毎回実行)を作り、build の `dependsOn` に入れた。`^` が付かない `"clean"` は「同じパッケージの clean」という意味。これで、キャッシュを復元する前に必ず `dist/` が空になる。
+- 判断の経緯は [ADR 0019](../adr/0019-clean-dist-before-build.md)。
 
 ### このPRで決めていないこと
 
