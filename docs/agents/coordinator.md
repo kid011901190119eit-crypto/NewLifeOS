@@ -29,7 +29,7 @@ orca orchestration worker-start --worktree new-child --base-branch origin/main -
   --spec "docs/agents/reviewer.md の段階1に従って、Issue #<番号> の合格の条件のチェックリストを作る。読む章: <一覧>"
 ```
 
-- 起動の結果に出る **Dispatch ID**(`dispatch:…`)を、役割ごとに控える。以後のやり取りはこの ID で行う。
+- 起動の結果に出る **Dispatch ID**(`ctx_…` の形)を、役割ごとに控える。以後のやり取りはこの ID で行い、`send` の宛先は `dispatch:ctx_…` と書く。
 - `worker-start` が失敗したら、やり直さずに `failedStage` を読み、オーナーに報告する。
 - 2人を起動したら、**ターンを終える**。Orca が起こしてくれる。見回り(ポーリング)・`sleep`・監視のスクリプトは使わない。
 
@@ -48,6 +48,8 @@ orca orchestration worker-start --worktree new-child --base-branch origin/main -
 - 作業役の出力は全部読まない。報告(`worker_done` の本文)の要約を使う。報告どうしが食い違うときだけ `worker-read` で確かめる。
 
 ## 4. レビューと修正の往復
+
+終わった作業役(`worker_done` を送ったあと)に `send` すると、新しい Task として受け付けられ、**Dispatch ID が変わる**。`send` の受領(receipt。コマンドが返す結果)に出る新しい `dispatchId` を控え直し、以後はそれを使う。ID が変わっても、同じ terminal・同じ会話で続きを受け取るので、作業役は前の内容を覚えている(学習ノート参照)。
 
 1. レビュー役に段階2を渡す。
 
@@ -84,16 +86,19 @@ orca orchestration worker-start --worktree new-child --base-branch origin/main -
 ```sh
 gh pr view <PR番号> --json state,mergedAt          # MERGED であることを確かめる
 orca orchestration worker-list                        # 開いたままの作業役を確かめる
-orca orchestration worker-release --dispatch <ID>     # 作業役ごとに閉じる
+orca orchestration worker-release --dispatch <ID>     # 役割ごとに、最新の ID で閉じる
 orca worktree rm --worktree name:issue-<番号>-impl --delete-branch
 orca worktree rm --worktree name:issue-<番号>-review --delete-branch
 git branch --list "*issue-<番号>*"                    # 残ったブランチを確かめる
-git branch -D <残ったブランチ>                        # Squash merge のため、-d では消えない
-git ls-remote --heads origin <実装役のブランチ>        # リモートに残っていれば
-git push origin --delete <実装役のブランチ>
+git branch -D <残ったブランチ>                        # 残ったときだけ。Squash merge のため、-d では消えない
+git ls-remote --heads origin <実装役のブランチ>        # リモートに残っているか確かめる
+git push origin --delete <実装役のブランチ>            # 残っていたときだけ
 ```
 
-- `--delete-branch` は、Orca がマージ済みだと証明できないブランチを残す。Squash merge のブランチは残ることが多いので、`git branch -D` で消す。
+- `new-child` で起動した作業役は、終わっても自動では閉じない(`keptOpen=true`)。片付けで、役割ごとに最新の ID へ `worker-release` を実行する。先に閉じていれば `already_released` と出るが、問題ない。
+- `worker-list` には、`send` のたびに増えた古い Dispatch ID も並ぶ(#29 では9行)。`worker-release` は、役割ごとに最新の ID に行えば足りる。
+- `--delete-branch` は、Orca がマージ済みだと証明できないブランチを残す。Squash merge のブランチが残ることもあれば、消えることもある(#29 では2つとも消えた)。そのため、`git branch --list` で残ったブランチを確かめ、残ったときだけ `git branch -D` で消す。
+- リモートのブランチは、マージのときに GitHub が消していることがある。`git ls-remote` で残っていたときだけ消す。
 - 消す前に、ワークツリーに未コミットの変更が残っていないこと(`git -C <パス> status`)を確かめる。残っていたら消さずにオーナーに見せる。
 
 ## 利用枠を節約するために
