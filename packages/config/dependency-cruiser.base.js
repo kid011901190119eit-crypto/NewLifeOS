@@ -3,7 +3,10 @@ const local = "^(packages|apps)/";
 // @lifeos/core は exports によって dist(ビルドの成果物)に解決されるので、src と dist の両方を見る
 const coreWeb = "packages/core/(src|dist)/web/";
 const coreServer = "packages/core/(?!(src|dist)/web/)";
-const anyPublic = "packages/modules/[^/]+/src/public/";
+// モジュールも exports によって dist に解決されるので、行き先は src と dist の両方を見る
+const anyPublic = "packages/modules/[^/]+/(src|dist)/public/";
+const anyModuleServer = "packages/modules/[^/]+/(src|dist)/server/";
+const dbMigrate = "packages/db/(src|dist)/migrate/";
 // 開発用の設定の共有(vitest.config.ts などから読む)は §5.2 の表の対象外なので、どこからでも import してよい
 const tooling = "^packages/config/";
 
@@ -72,7 +75,7 @@ const forbidden = [
     "module-web-deps",
     "モジュールの web が import してよいのは、自分のモジュール(server・db を除く)・core/web・ui・他のモジュールの public だけ",
     "^packages/modules/([^/]+)/src/web/",
-    ["packages/modules/$1/(?!src/(server|db)/)", coreWeb, "packages/ui/", anyPublic],
+    ["packages/modules/$1/(?!(src|dist)/(server|db)/)", coreWeb, "packages/ui/", anyPublic],
   ),
   {
     name: "module-web-other-public-type-only",
@@ -93,7 +96,7 @@ const forbidden = [
     comment: "domain は DB を知らない",
     severity: "error",
     from: { path: "^packages/modules/[^/]+/src/domain/" },
-    to: { path: "^(packages/db/|packages/modules/[^/]+/src/db/)" },
+    to: { path: "^(packages/db/|packages/modules/[^/]+/(src|dist)/db/)" },
   },
   {
     name: "domain-only-zod",
@@ -117,7 +120,7 @@ const forbidden = [
     "registry-deps",
     "registry が import してよいのは、core(型だけ)と各モジュールの server だけ",
     "^packages/registry/",
-    ["packages/registry/", coreServer, "packages/modules/[^/]+/src/server/"],
+    ["packages/registry/", coreServer, anyModuleServer],
   ),
   {
     name: "registry-core-type-only",
@@ -133,10 +136,24 @@ const forbidden = [
     ["apps/$1/", coreServer, "packages/db/", "packages/registry/"],
   ),
   row(
+    "app-migrate-deps",
+    "migrate が import してよいのは、core・db・registry だけ(モジュールの一覧は registry から読む)",
+    "^apps/migrate/",
+    ["apps/migrate/", coreServer, "packages/db/", "packages/registry/"],
+  ),
+  {
+    name: "db-migrate-only-from-migrate-app",
+    comment:
+      "マイグレーションの適用は migrate だけが行う(api・mcp・worker などが起動時に適用しないようにする。module-system.md §4.4)",
+    severity: "error",
+    from: { pathNot: `^(apps/migrate/|${dbMigrate})` },
+    to: { path: `^${dbMigrate}` },
+  },
+  row(
     "app-web-deps",
     "apps/web が import してよいのは、core/web・ui・各モジュールの web だけ",
     "^apps/web/",
-    ["apps/web/", coreWeb, "packages/ui/", "packages/modules/[^/]+/src/web/"],
+    ["apps/web/", coreWeb, "packages/ui/", "packages/modules/[^/]+/(src|dist)/web/"],
   ),
 ];
 
@@ -155,6 +172,12 @@ export function createDependencyCruiserConfig({ tsconfigPath } = {}) {
       exclude: { path: "(^|/)(tests/fixtures|coverage|\\.turbo)/" },
       // import type も依存として数える(型だけの import かどうかを検査するため)
       tsPreCompilationDeps: true,
+      // package.json の exports を読む(既定では読まず、@lifeos/ のパッケージを解決できない)。
+      // 実行するときと同じ dist の .js に解決させるため、types の条件は使わない
+      enhancedResolveOptions: {
+        exportsFields: ["exports"],
+        conditionNames: ["import", "node", "default"],
+      },
       ...(tsconfigPath === undefined ? {} : { tsConfig: { fileName: tsconfigPath } }),
     },
   };

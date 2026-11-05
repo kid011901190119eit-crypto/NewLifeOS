@@ -383,7 +383,7 @@ export default defineModuleUi({
 
 ### 10.2 リポジトリ構成(案)
 ```
-apps/       web / api / mcp / worker
+apps/       web / api / mcp / worker / migrate
 packages/   core / modules/finance / modules/calendar / registry / db / ui / config
 infra/      opentofu/(oracle / cloudflare / aws)
 deploy/     compose/ / k8s/(将来)

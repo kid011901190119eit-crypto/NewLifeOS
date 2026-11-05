@@ -5,6 +5,10 @@ import { RYUK_IMAGE } from "./ryuk-image.js";
 
 export interface TestPostgres {
   readonly client: pg.Client;
+  /** 起動時に作られたデータベースへの接続先。パスワードを含むので、ログに出さない */
+  readonly connectionUri: string;
+  /** 空のデータベースを新しく作り、その接続先を返す(テストごとに状態を分けるため) */
+  createDatabase(name: string): Promise<string>;
   stop(): Promise<void>;
 }
 
@@ -26,8 +30,16 @@ export async function startPostgres(): Promise<TestPostgres> {
     throw error;
   }
 
+  const connectionUri = container.getConnectionUri();
   return {
     client,
+    connectionUri,
+    async createDatabase(name) {
+      await client.query(`CREATE DATABASE ${client.escapeIdentifier(name)}`);
+      const url = new URL(connectionUri);
+      url.pathname = `/${name}`;
+      return url.toString();
+    },
     async stop() {
       try {
         await client.end();

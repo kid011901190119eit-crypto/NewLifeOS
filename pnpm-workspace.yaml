@@ -4,5 +4,6 @@ packages:
   - "packages/modules/*"
 allowBuilds:
   cpu-features: false
+  esbuild: false
   protobufjs: false
   ssh2: false

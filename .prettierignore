@@ -1,3 +1,5 @@
 # Markdown は対象外にする(Issue #8 で決定。入れるときは別のプルリクエストで整形する)
 *.md
 pnpm-lock.yaml
+# drizzle-kit generate が自分の形式で書き直す出力なので、整形しない
+**/migrations/meta/

@@ -4,9 +4,10 @@ import tseslint from "typescript-eslint";
 
 const resolverPath = createRequire(import.meta.url).resolve("eslint-import-resolver-typescript");
 
+// モジュールも exports によって dist に解決されるので、src と dist の両方を見る
 const moduleDir = (part) => ({
   type: `module-${part}`,
-  pattern: `packages/modules/*/src/${part}`,
+  pattern: [`packages/modules/*/src/${part}`, `packages/modules/*/dist/${part}`],
   capture: ["moduleId"],
   partialMatch: false,
 });
@@ -20,6 +21,12 @@ const elements = [
     partialMatch: false,
   },
   { type: "core", pattern: "packages/core", partialMatch: false },
+  // マイグレーションの適用は migrate だけが使う(api などが起動時に適用しないようにする。module-system.md §4.4)
+  {
+    type: "db-migrate",
+    pattern: ["packages/db/src/migrate", "packages/db/dist/migrate"],
+    partialMatch: false,
+  },
   { type: "db", pattern: "packages/db", partialMatch: false },
   { type: "ui", pattern: "packages/ui", partialMatch: false },
   { type: "registry", pattern: "packages/registry", partialMatch: false },
@@ -31,6 +38,7 @@ const elements = [
   moduleDir("web"),
   { type: "module", pattern: "packages/modules/*", capture: ["moduleId"], partialMatch: false },
   { type: "app-server", pattern: "apps/{api,mcp,worker}", partialMatch: false },
+  { type: "app-migrate", pattern: "apps/migrate", partialMatch: false },
   { type: "app-web", pattern: "apps/web", partialMatch: false },
 ];
 
@@ -53,6 +61,7 @@ const policies = [
 
   // core/web はブラウザで動くので、db もコアのサーバー側も import させない(どちらも許可しない)
   { from: from("core"), allow: to("db") },
+  { from: from("db-migrate"), allow: to("db") },
 
   // 自分のモジュールの中は、相対パスで自由に import してよい
   {
@@ -83,6 +92,7 @@ const policies = [
     allow: [{ ...to("core"), dependency: { kind: "type" } }, to("module-server")],
   },
   { from: from("app-server"), allow: to("core", "db", "registry") },
+  { from: from("app-migrate"), allow: to("core", "db", "db-migrate", "registry") },
   { from: from("app-web"), allow: to("core-web", "ui", "module-web") },
 ];
 

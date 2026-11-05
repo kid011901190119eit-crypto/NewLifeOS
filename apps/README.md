@@ -8,5 +8,6 @@
 | `api/` | REST API(Hono)。画面からの操作を受け付ける | する |
 | `mcp/` | Claudeコネクタの入口(MCPサーバー)とOAuth認可サーバー | する |
 | `worker/` | 定期実行・Googleとの同期・通知・イベント配送(BullMQ) | しない |
+| `migrate/` | core と各モジュールのマイグレーションを適用するコマンド(`pnpm db:migrate`)。常駐しない | しない |
 
 アプリ自体には業務ロジックをなるべく書かず、`packages/` の部品を組み合わせる役割に徹します。

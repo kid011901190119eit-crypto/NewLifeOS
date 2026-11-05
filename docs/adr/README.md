@@ -37,3 +37,4 @@ ADR(Architecture Decision Record)は、「何を・なぜ決めたのか」を1�
 | [0024](0024-coordinator-implementer-reviewer.md) | 指揮役・実装役・レビュー役に分け、Orca のオーケストレーションで Issue を半自動で進める | 承認 |
 | [0025](0025-integration-tests-with-testcontainers.md) | 結合テストは Testcontainers で使い捨ての PostgreSQL を立て、`pnpm test:integration` で分けて実行する(イメージは compose.yaml から読む、Ryuk も digest で固定) | 承認 |
 | [0026](0026-db-ui-core-web-boundaries.md) | db・ui はいちばん下の層にし(外部のライブラリと自分の中だけを import する)、コアのサーバー側と core/web はお互いを import しない | 承認 |
+| [0027](0027-drizzle-and-migrate-command.md) | Drizzle 0.45 を使い、apps/migrate が registry の一覧から core → モジュールの順にマイグレーションを適用する(最初のマイグレーションは IF NOT EXISTS に手で直す、接続先は DATABASE_URL) | 承認 |

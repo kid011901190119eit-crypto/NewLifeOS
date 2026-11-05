@@ -144,7 +144,11 @@
 | 状態を確かめる(`(healthy)` なら準備完了) | `pnpm db:status` |
 | ログを見る | `pnpm db:logs` |
 | **データを消して**作り直す | `pnpm db:reset` |
+| core と各モジュールのマイグレーションを適用する(先にビルドも行う。`.env` に `DATABASE_URL` が要る) | `pnpm db:migrate` |
+| マイグレーションの SQL を生成する(テーブルの定義を変えたあと。最初のマイグレーションは手で直す。[解説](docs/learning/orm-and-drizzle.md)) | `pnpm --filter @lifeos/finance exec drizzle-kit generate --name <名前>` |
 
 接続先は PostgreSQL が `127.0.0.1:5432`、Valkey が `127.0.0.1:6379`(ポートとパスワードは `.env` で変えられる)。
+
+`pnpm db:migrate` を使う前に、前からある `.env` には `DATABASE_URL` を自分で1行足す(`.env.example` の最後の行と同じ形)。ユーザー・パスワード・ポート・DB名は同じ `.env` の `POSTGRES_*` と同じ値にし、特にパスワードは `POSTGRES_PASSWORD` と同じにする。足し忘れると「DATABASE_URL が設定されていない」で、パスワードが違うと `password authentication failed` で止まる。詳しくは [マイグレーションの解説](docs/learning/database-migrations.md)。
 
 > 未確定: アプリ(api・web など)のローカル起動のコマンドは、それを導入するプルリクエストで追記する。
