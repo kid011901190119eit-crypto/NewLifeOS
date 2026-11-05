@@ -53,7 +53,7 @@
 オーナーが Issue を依頼したとき(Claude Code では `/issue <番号>`)は、次の順で進める。ここにない点は「必ず守るルール」に従う。
 
 ### 1. 読む
-- `gh issue view <番号> --json title,body,labels,comments` で Issue を読む(オプションなしの `gh issue view` は、Projects (classic) 廃止の影響で失敗することがある)。
+- `gh issue view <番号> --json title,body,labels,comments` で Issue を読む。
 - この AGENTS.md、`docs/roadmap.md` の該当フェーズ、Issue に関係する `docs/spec.md` の章・`docs/design/`・`docs/adr/` を読む。
 
 ### 2. 計画する(書き始める前にオーナーの確認を取る)
