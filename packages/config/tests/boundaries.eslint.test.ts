@@ -132,6 +132,31 @@ describe("ESLint の境界ルール(module-system.md §5.2)", () => {
     it("Zod を import しても、エラーにならない", async () => {
       expect(await boundaryErrors("packages/modules/alpha/src/domain/thing.ts")).toEqual([]);
     });
+
+    it("domain の本体が Vitest を import すると、エラーになる", async () => {
+      const errors = await boundaryErrors(
+        "packages/modules/alpha/src/domain/violation-imports-vitest.ts",
+      );
+      expect(errors).toEqual([expect.stringContaining("boundaries/dependencies")]);
+    });
+
+    it("domain のテストは、Vitest と Zod を使う自分の domain を import しても、エラーにならない", async () => {
+      expect(await boundaryErrors("packages/modules/alpha/src/domain/thing.test.ts")).toEqual([]);
+    });
+
+    it("domain のテストでも、Zod・Vitest 以外の外部のライブラリを import すると、エラーになる", async () => {
+      const errors = await boundaryErrors(
+        "packages/modules/alpha/src/domain/violation-imports-non-zod-library.test.ts",
+      );
+      expect(errors).toEqual([expect.stringContaining("boundaries/dependencies")]);
+    });
+
+    it("domain のテストでも、自分のモジュールの db を import すると、エラーになる", async () => {
+      const errors = await boundaryErrors(
+        "packages/modules/alpha/src/domain/violation-imports-own-db-schema.test.ts",
+      );
+      expect(errors).toEqual([expect.stringContaining("boundaries/dependencies")]);
+    });
   });
 
   describe("マイグレーションの適用(module-system.md §4.4)", () => {
@@ -159,6 +184,7 @@ describe("ESLint の境界ルール(module-system.md §5.2)", () => {
   describe("違反しないファイル", () => {
     it.each([
       "packages/modules/alpha/src/server/index.ts",
+      "packages/modules/alpha/src/server/thing.test.ts",
       "packages/modules/alpha/src/operations/get-thing.ts",
       "packages/modules/alpha/src/public/index.ts",
       "packages/modules/alpha/src/db/schema.ts",

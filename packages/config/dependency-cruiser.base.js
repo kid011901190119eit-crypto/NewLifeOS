@@ -24,6 +24,35 @@ function row(name, comment, fromPath, allowed) {
   };
 }
 
+const domain = "^packages/modules/[^/]+/src/domain/";
+const domainTest = `${domain}.*\\.test\\.ts$`;
+
+/**
+ * domain から外部のライブラリへの依存を、libraries に挙げたものだけに制限するルールにする。
+ * from で、domain の中のどのファイル(本体かテストか)に当てはめるかを選ぶ。
+ */
+function domainExternalLibraries(name, comment, from, libraries) {
+  const names = libraries.join("|");
+  return {
+    name,
+    comment,
+    severity: "error",
+    from,
+    to: {
+      dependencyTypes: [
+        "npm",
+        "npm-dev",
+        "npm-optional",
+        "npm-peer",
+        "npm-no-pkg",
+        "npm-unknown",
+        "unknown",
+      ],
+      pathNot: `^(${names})$|(^|/)node_modules/(${names})/`,
+    },
+  };
+}
+
 /** @type {import("dependency-cruiser").IForbiddenRuleType[]} */
 const forbidden = [
   {
@@ -98,24 +127,18 @@ const forbidden = [
     from: { path: "^packages/modules/[^/]+/src/domain/" },
     to: { path: "^(packages/db/|packages/modules/[^/]+/(src|dist)/db/)" },
   },
-  {
-    name: "domain-only-zod",
-    comment: "domain が使ってよい外部のライブラリは Zod だけ",
-    severity: "error",
-    from: { path: "^packages/modules/[^/]+/src/domain/" },
-    to: {
-      dependencyTypes: [
-        "npm",
-        "npm-dev",
-        "npm-optional",
-        "npm-peer",
-        "npm-no-pkg",
-        "npm-unknown",
-        "unknown",
-      ],
-      pathNot: "^zod$|(^|/)node_modules/zod/",
-    },
-  },
+  domainExternalLibraries(
+    "domain-only-zod",
+    "domain の本体が使ってよい外部のライブラリは Zod だけ",
+    { path: domain, pathNot: domainTest },
+    ["zod"],
+  ),
+  domainExternalLibraries(
+    "domain-test-only-zod-and-vitest",
+    "domain のテストが使ってよい外部のライブラリは Zod とテストの道具の Vitest だけ",
+    { path: domainTest },
+    ["zod", "vitest"],
+  ),
   row(
     "registry-deps",
     "registry が import してよいのは、core(型だけ)と各モジュールの server だけ",
