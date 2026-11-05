@@ -79,7 +79,6 @@ orca orchestration worker-start --worktree new-child --base-branch origin/main -
    - レビューの結果: チェックリストの合否、指摘と直した内容、残った指摘
    - AGENTS.md「6. 報告する」の3つ(依頼の範囲を超えた変更・自分で書いたテストを直した箇所と理由・確かめられなかったことと理由)
 
-
 ## 利用枠を節約するために
 
 - 待つときは、必ずターンを終える。何もしていない Claude Code は利用枠を使わない。
