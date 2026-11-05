@@ -275,6 +275,8 @@ describe("§9.1 仕訳の変換", () => {
         system,
       );
       expect(lend).toEqual(borrow);
+      expect(fromPostings("lend", lend, system).kind).toBe("lend");
+      expect(fromPostings("borrow", borrow, system).kind).toBe("borrow");
     }
   });
 
