@@ -77,25 +77,6 @@ orca orchestration worker-start --worktree new-child --base-branch origin/main -
    - レビューの結果: チェックリストの合否、指摘と直した内容、残った指摘
    - AGENTS.md「6. 報告する」の3つ(依頼の範囲を超えた変更・自分で書いたテストを直した箇所と理由・確かめられなかったことと理由)
 
-## 6. マージのあとの片付け
-
-オーナーから「マージした」と聞いたら、次の一覧をオーナーに見せ、**承認を得てから**片付ける。ワークツリーとブランチの削除を含むためである。
-
-```sh
-gh pr view <PR番号> --json state,mergedAt          # MERGED であることを確かめる
-orca orchestration worker-list                        # 開いたままの作業役を確かめる
-orca orchestration worker-release --dispatch <ID>     # 作業役ごとに閉じる
-orca worktree rm --worktree name:issue-<番号>-impl --delete-branch
-orca worktree rm --worktree name:issue-<番号>-review --delete-branch
-git branch --list "*issue-<番号>*"                    # 残ったブランチを確かめる
-git branch -D <残ったブランチ>                        # Squash merge のため、-d では消えない
-git ls-remote --heads origin <実装役のブランチ>        # リモートに残っていれば
-git push origin --delete <実装役のブランチ>
-```
-
-- `--delete-branch` は、Orca がマージ済みだと証明できないブランチを残す。Squash merge のブランチは残ることが多いので、`git branch -D` で消す。
-- 消す前に、ワークツリーに未コミットの変更が残っていないこと(`git -C <パス> status`)を確かめる。残っていたら消さずにオーナーに見せる。
-
 ## 利用枠を節約するために
 
 - 待つときは、必ずターンを終える。何もしていない Claude Code は利用枠を使わない。

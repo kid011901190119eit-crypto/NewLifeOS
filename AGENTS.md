@@ -114,9 +114,6 @@
 4. 利用枠の上限で止まっただけなら、枠が戻ってから、指揮役が `orca orchestration send` で再開させてもよい。
 5. Orca の管理の状態そのものが壊れたときだけ、`orca orchestration reset` を使う。消える範囲を確かめてから、オーナーが実行する。
 
-### マージのあとの片付け
-指揮役が、作業役を閉じる(`worker-release`)・子ワークツリーを消す(`orca worktree rm`)・ローカルとリモートのブランチを消す、の一覧をオーナーに見せ、承認を得てから行う。コマンドは [`docs/agents/coordinator.md`「6. マージのあとの片付け」](docs/agents/coordinator.md#6-マージのあとの片付け)にある。
-
 ## よく使うコマンド
 
 前提: Node.js 24、pnpm 12(版はルートの `package.json` の `engines` と `packageManager` で固定している)。コマンドはリポジトリのルートで実行する。
