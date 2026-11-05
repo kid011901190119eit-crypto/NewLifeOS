@@ -47,5 +47,6 @@ ADR 0014 と `docs/design/module-system.md` §4.4 で、「モジュールごと
 - §8.3 のマイグレーションのテストケースが、結合テストで確かめられるようになった(`packages/db`・`apps/migrate`)。
 - §5.2 の表に `apps/migrate` の行ができた。モジュールも `exports` で dist に解決されるので、境界の検査はモジュールの src と dist の両方を見る。dependency-cruiser には package.json の `exports` を読ませる。
 - モジュールを足すときは、最初のマイグレーションを手で直す作業が1つ増える。
+- drizzle-kit が中で使う esbuild のインストール用スクリプトは、`pnpm-workspace.yaml` の `allowBuilds` で `esbuild: false` にして止めている。pnpm 12 は、許可も禁止もしていないスクリプトがあるとインストールを失敗にするため、既存の `cpu-features` などと同じく、必要のないスクリプトは実行させない。esbuild の本体は、OS ごとの別パッケージとして入る。止めたままでも、`drizzle-kit generate` が core と finance で動くことを確かめた。
 - 1.0 の正式版が出たら、移行するかを改めて決める。
 - `migrate` をデプロイ時にどう呼ぶかは、引き続きフェーズ7で決める。

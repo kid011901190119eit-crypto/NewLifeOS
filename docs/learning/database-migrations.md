@@ -46,7 +46,16 @@ pnpm db:up        # 手元の PostgreSQL を起動する
 pnpm db:migrate   # ビルドしてから、core と各モジュールのマイグレーションを適用する
 ```
 
-接続先は環境変数 `DATABASE_URL` で渡す。手元では `deploy/compose/.env` を Node.js の `--env-file-if-exists` で読む。`.env.example` の `DATABASE_URL` は `POSTGRES_*` と同じ値にしておく(ずれるとテストが失敗する)。本番での呼び方はフェーズ7で決める。
+接続先は環境変数 `DATABASE_URL` で渡す。手元では `deploy/compose/.env` を Node.js の `--env-file-if-exists` で読む。本番での呼び方はフェーズ7で決める。
+
+> **前から `.env` を使っている場合は、`DATABASE_URL` を自分で1行足す。** `.env` は `.env.example` を複製したときのままなので、あとから見本に足した行は入っていない。足し忘れると、`pnpm db:migrate` は「環境変数 DATABASE_URL が設定されていない」で止まる。
+>
+> ```sh
+> # deploy/compose/.env に足す。ユーザー・パスワード・ポート・DB名は、同じファイルの POSTGRES_* と同じ値にする
+> DATABASE_URL=postgres://<POSTGRES_USER>:<POSTGRES_PASSWORD>@127.0.0.1:<POSTGRES_PORT>/<POSTGRES_DB>
+> ```
+>
+> 特に**パスワードは `POSTGRES_PASSWORD` と同じ値にする。** 違うと、PostgreSQL に接続を断られて止まる(`password authentication failed`)。`.env.example` の中の値が食い違わないことはテストで確かめているが、手元の `.env` はテストでは見られない。
 
 ### 気をつけること(Drizzle の適用の仕組みの動き)
 
