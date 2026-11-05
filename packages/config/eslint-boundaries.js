@@ -54,6 +54,24 @@ const moduleServerSide = [
 const to = (...types) => ({ to: { element: { types } } });
 const from = (...types) => ({ element: { types } });
 
+/** domain から使えるのを、自分のモジュールの domain と、libraries に挙げた外部のライブラリだけにするポリシー */
+const domainPolicyAllowing = (libraries, message) => ({
+  from: from("module-domain"),
+  disallow: [
+    to("db", "module-db"),
+    { to: { module: { origin: "external", source: `!(${libraries.join("|")})` } } },
+  ],
+  message,
+});
+const domainPolicy = domainPolicyAllowing(
+  ["zod"],
+  "domain から使えるのは、自分のモジュールの domain と Zod だけ",
+);
+const domainTestPolicy = domainPolicyAllowing(
+  ["zod", "vitest"],
+  "domain のテストから使えるのは、自分のモジュールの domain と Zod・Vitest だけ",
+);
+
 // module-system.md §5.2 の表。複数のポリシーに当てはまるときは、後に書いたものが優先される
 const policies = [
   // 外部のライブラリと Node.js の組み込みモジュールは、下で個別に禁止しない限り使ってよい
@@ -80,12 +98,9 @@ const policies = [
     message:
       "モジュールの画面のコードから、サーバーのコード(server・db・Hono)を import してはいけない",
   },
-  // domain は DB を知らない純粋なロジックにする。外部のライブラリは Zod だけ
-  {
-    from: from("module-domain"),
-    disallow: [to("db", "module-db"), { to: { module: { origin: "external", source: "!zod" } } }],
-    message: "domain から使えるのは、自分のモジュールの domain と Zod だけ",
-  },
+  // domain は DB を知らない純粋なロジックにする。外部のライブラリは本体では Zod だけ、テストでは Zod と Vitest だけ
+  // (テストのファイルだけ、下の createBoundariesConfig で差し替える)
+  domainPolicy,
 
   {
     from: from("registry"),
@@ -120,6 +135,22 @@ export function createBoundariesConfig({ rootDir, tsconfigPath }) {
           "error",
           // checkAllOrigins: 外部のライブラリへの依存も検査する(既定ではローカルのファイルだけ)
           { default: "disallow", checkAllOrigins: true, policies },
+        ],
+      },
+    },
+    // domain のテストだけ、テストの道具の Vitest を使ってよい(ADR 0028)
+    {
+      files: ["**/src/domain/**/*.test.ts"],
+      rules: {
+        "boundaries/dependencies": [
+          "error",
+          {
+            default: "disallow",
+            checkAllOrigins: true,
+            policies: policies.map((policy) =>
+              policy === domainPolicy ? domainTestPolicy : policy,
+            ),
+          },
         ],
       },
     },
