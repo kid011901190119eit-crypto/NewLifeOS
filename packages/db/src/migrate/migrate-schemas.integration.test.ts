@@ -141,6 +141,8 @@ describe("スキーマごとのマイグレーションの適用(module-system.m
 
     expect(error).toBeInstanceOf(Error);
     expect((error as Error).message).toContain('CREATE SCHEMA "plain"');
-    expect(((error as Error).cause as Error).message).toContain("already exists");
+    // 42P06 は PostgreSQL の duplicate_schema(スキーマがすでにある)。ほかの理由の失敗では通らないようにする
+    expect((error as Error).cause).toBeInstanceOf(pg.DatabaseError);
+    expect(((error as Error).cause as pg.DatabaseError).code).toBe("42P06");
   });
 });
