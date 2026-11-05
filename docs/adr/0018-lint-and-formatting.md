@@ -30,7 +30,7 @@
 ## 結果
 - 境界のルールに違反すると、エディタ(ESLint)と `pnpm lint`(ESLint と dependency-cruiser)で気づける。2つの道具の設定の誤りは、フィクスチャのテストで見つかる。
 - 同じルールを2か所に書くので、変更の手間は2倍になる。フィクスチャのテストが、直し忘れを防ぐ。
-- §5.2 の表にない組み合わせ(db・ui からの import など)は、ESLint では禁止(許可リスト方式)、dependency-cruiser では未検査になり、扱いが食い違う。モジュールを作るときに決める(#9)。core/web から db・コアのサーバー側への import は、画面のコードと同じ考え方(§4.2)で、両方の道具で禁止した。
+- §5.2 の表にない組み合わせ(db・ui からの import など)は、ESLint では禁止(許可リスト方式)、dependency-cruiser では未検査になり、扱いが食い違う。モジュールを作るときに決める(#9)。→ #35 で決めた(ADR 0026)。core/web から db・コアのサーバー側への import は、画面のコードと同じ考え方(§4.2)で、両方の道具で禁止した。
 - 型情報を使うので、Lint に時間がかかり、依存先のパッケージをビルドしてからでないと Lint できない。
 - Markdown の書き方(表や空行)は、人とエージェントの注意に任せる。
 - 詳細は学習ノート([ESLint](../learning/eslint.md)・[Prettier](../learning/prettier.md)・[eslint-plugin-boundaries](../learning/eslint-plugin-boundaries.md)・[dependency-cruiser](../learning/dependency-cruiser.md))にある。

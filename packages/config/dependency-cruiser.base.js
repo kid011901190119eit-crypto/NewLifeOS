@@ -39,10 +39,22 @@ const forbidden = [
     to: { path: "^@lifeos/", couldNotResolve: true },
   },
   row(
+    "db-deps",
+    "db はいちばん下の層なので、ワークスペースの中で import してよいのは自分のパッケージだけ",
+    "^packages/db/",
+    ["packages/db/"],
+  ),
+  row(
+    "ui-deps",
+    "ui はいちばん下の層なので、ワークスペースの中で import してよいのは自分のパッケージだけ",
+    "^packages/ui/",
+    ["packages/ui/"],
+  ),
+  row(
     "core-deps",
-    "コアのサーバー側が import してよいのは、コアと db だけ(モジュールを知らない)",
+    "コアのサーバー側が import してよいのは、コアのサーバー側と db だけ(モジュールと core/web を知らない)",
     `^${coreServer}`,
-    ["packages/core/", "packages/db/"],
+    [coreServer, "packages/db/"],
   ),
   row(
     "core-web-deps",
