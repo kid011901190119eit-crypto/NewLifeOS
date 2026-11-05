@@ -20,6 +20,7 @@
     "db:down": "docker compose -f deploy/compose/compose.yaml down",
     "db:status": "docker compose -f deploy/compose/compose.yaml ps",
     "db:logs": "docker compose -f deploy/compose/compose.yaml logs -f",
+    "db:migrate": "turbo run build --filter=@lifeos/migrate && pnpm --filter @lifeos/migrate run migrate",
     "db:reset": "docker compose -f deploy/compose/compose.yaml down --volumes && docker compose -f deploy/compose/compose.yaml up -d --wait"
   },
   "devDependencies": {

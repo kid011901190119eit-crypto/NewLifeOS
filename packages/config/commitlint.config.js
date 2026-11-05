@@ -19,6 +19,8 @@ export default {
         "web",
         "mcp",
         "worker",
+        "registry",
+        "migrate",
       ],
     ],
   },

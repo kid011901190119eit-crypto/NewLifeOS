@@ -134,6 +134,28 @@ describe("ESLint の境界ルール(module-system.md §5.2)", () => {
     });
   });
 
+  describe("マイグレーションの適用(module-system.md §4.4)", () => {
+    it.each([
+      ["api", "apps/api/src/violation-imports-db-migrate.ts"],
+      ["コア", "packages/core/src/violation-imports-db-migrate.ts"],
+    ])(
+      "%s が db のマイグレーションの適用(@lifeos/db/migrate)を import すると、エラーになる(適用は migrate だけが行うため)",
+      async (_, file) => {
+        const errors = await boundaryErrors(file);
+        expect(errors).toEqual([expect.stringContaining("boundaries/dependencies")]);
+      },
+    );
+
+    it("migrate がモジュールの server を直接 import すると、エラーになる(一覧は registry から読む)", async () => {
+      const errors = await boundaryErrors("apps/migrate/src/violation-imports-module-server.ts");
+      expect(errors).toEqual([expect.stringContaining("boundaries/dependencies")]);
+    });
+
+    it("migrate が core・db・db のマイグレーションの適用・registry を import しても、エラーにならない", async () => {
+      expect(await boundaryErrors("apps/migrate/src/main.ts")).toEqual([]);
+    });
+  });
+
   describe("違反しないファイル", () => {
     it.each([
       "packages/modules/alpha/src/server/index.ts",

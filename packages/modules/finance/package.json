@@ -1,0 +1,31 @@
+{
+  "name": "@lifeos/finance",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server": {
+      "types": "./dist/server/index.d.ts",
+      "default": "./dist/server/index.js"
+    }
+  },
+  "scripts": {
+    "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
+    "build": "pnpm run clean && tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@lifeos/core": "workspace:*",
+    "drizzle-orm": "^0.45.4"
+  },
+  "devDependencies": {
+    "@lifeos/config": "workspace:*",
+    "@types/node": "^24.19.2",
+    "drizzle-kit": "^0.31.11",
+    "eslint": "^10.14.0",
+    "typescript": "~6.0.3",
+    "vitest": "^5.1.0"
+  }
+}

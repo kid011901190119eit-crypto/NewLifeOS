@@ -437,7 +437,7 @@ for (const m of host.modules) {
 
 ### 4.4 マイグレーション(`migrate` コマンド)
 
-- 各モジュールは自分の `drizzle.config.ts` を持ち、`schemaFilter: ["<id>"]` で**自分のスキーマだけ**を対象にマイグレーションを生成する。最初のマイグレーションで `CREATE SCHEMA <id>` を行う。
+- 各モジュールは自分の `drizzle.config.ts` を持ち、`schemaFilter: ["<id>"]` で**自分のスキーマだけ**を対象にマイグレーションを生成する。最初のマイグレーションで `CREATE SCHEMA <id>` を行う。Drizzle が履歴を置くために先にスキーマを作るので、生成された文を `CREATE SCHEMA IF NOT EXISTS "<id>"` に手で直す(#37、ADR 0027)。
 - 適用履歴は各スキーマの中の `__migrations` テーブルに持つ(Drizzle の `migrationsSchema` / `migrationsTable` の設定)。モジュールを足しても、既存のモジュールの適用履歴には触れない。
 - `migrate` コマンドは、`core` を先に適用し、次に `serverModules` の順に適用する。
 - api・mcp・worker は起動時にマイグレーションを**実行しない**。複数のプロセスが同時に適用しようとしてぶつかるのを避けるため。`migrate` をデプロイ時にどう呼ぶかは、フェーズ7で決める。
@@ -516,7 +516,11 @@ export type { Balance } from "../domain/balance";
 | ui | × | × | × | — | × | × | × |
 | registry | ○(型) | × | × | × | × | server だけ ○ | — |
 | apps/api・mcp・worker | ○ | × | ○ | × | × | × | ○ |
+| apps/migrate | ○ | × | ○ | × | × | × | ○ |
 | apps/web | × | ○ | × | ○ | × | web だけ ○ | × |
+
+- db のうちマイグレーションの適用(`@lifeos/db/migrate`)を import できるのは、`apps/migrate` だけ(§4.4。api・mcp・worker などが起動時に適用しないようにする。#37、ADR 0027)。
+- モジュールも core と同じく `exports` で dist(ビルドの成果物)に解決されるので、検査は src と dist の両方を見る(#37)。
 
 - 自分のモジュールの中では、相対パスで自由に import してよい。ただし `web` から `server`・`db/schema` は × (ブラウザに入れないため)。
 - `core/web` はブラウザで動くので、`db` とコアのサーバー側を import しない。逆向きに、コアのサーバー側も `core/web` を import しない(§4.2 と同じ考え方。#12・#35 で検査に追加)。

@@ -102,6 +102,25 @@ describe("秘密情報の見本ファイル(.env.example)", () => {
     expect(missing).toEqual([]);
   });
 
+  it("migrate が使う DATABASE_URL は、POSTGRES_* の見本の値と同じ接続先を指す(2か所の値がずれないように)", () => {
+    const example = read(envExampleFile);
+    const value = (name: string) => new RegExp(`^${name}=(.*)$`, "m").exec(example)?.[1] ?? "";
+    const url = new URL(value("DATABASE_URL"));
+    expect({
+      user: url.username,
+      password: url.password,
+      host: url.hostname,
+      port: url.port,
+      database: url.pathname.slice(1),
+    }).toEqual({
+      user: value("POSTGRES_USER"),
+      password: value("POSTGRES_PASSWORD"),
+      host: "127.0.0.1",
+      port: value("POSTGRES_PORT"),
+      database: value("POSTGRES_DB"),
+    });
+  });
+
   it("本物の .env は Git の管理から外れている", () => {
     // check-ignore は無視される場合に終了コード0を返し、そうでなければ例外を投げる
     expect(() =>

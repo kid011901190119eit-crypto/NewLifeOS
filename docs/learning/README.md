@@ -33,3 +33,5 @@
 - [Orca のワークツリーの準備(orca.yaml と .worktreeinclude)](orca-worktree-setup.md)
 - [Orca のオーケストレーション(複数のエージェントに分担させる)](orca-orchestration.md)
 - [Testcontainers(テストのたびに使い捨てのコンテナを立てる)](testcontainers.md)
+- [ORM と Drizzle(TypeScript から DB のテーブルを扱う)](orm-and-drizzle.md)
+- [マイグレーション(DB の構造の変更を、順番つきのファイルで残す)](database-migrations.md)

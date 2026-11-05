@@ -144,6 +144,8 @@
 | 状態を確かめる(`(healthy)` なら準備完了) | `pnpm db:status` |
 | ログを見る | `pnpm db:logs` |
 | **データを消して**作り直す | `pnpm db:reset` |
+| core と各モジュールのマイグレーションを適用する(先にビルドも行う。`.env` に `DATABASE_URL` が要る) | `pnpm db:migrate` |
+| マイグレーションの SQL を生成する(テーブルの定義を変えたあと。最初のマイグレーションは手で直す。[解説](docs/learning/orm-and-drizzle.md)) | `pnpm --filter @lifeos/finance exec drizzle-kit generate --name <名前>` |
 
 接続先は PostgreSQL が `127.0.0.1:5432`、Valkey が `127.0.0.1:6379`(ポートとパスワードは `.env` で変えられる)。
 

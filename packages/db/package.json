@@ -3,6 +3,16 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "exports": {
+    "./migrate": {
+      "types": "./dist/migrate/migrate-schemas.d.ts",
+      "default": "./dist/migrate/migrate-schemas.js"
+    },
+    "./testing": {
+      "types": "./dist/testing/start-postgres.d.ts",
+      "default": "./dist/testing/start-postgres.js"
+    }
+  },
   "scripts": {
     "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
     "build": "pnpm run clean && tsc -p tsconfig.build.json",
@@ -17,9 +27,12 @@
     "@types/node": "^24.19.2",
     "@types/pg": "^8.23.1",
     "eslint": "^10.14.0",
-    "pg": "^8.23.1",
     "testcontainers": "^12.2.1",
     "typescript": "~6.0.3",
     "vitest": "^5.1.0"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.4",
+    "pg": "^8.23.1"
   }
 }

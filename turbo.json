@@ -18,6 +18,12 @@
       "dependsOn": ["^build"],
       "cache": false
     },
+    "@lifeos/core#test": {
+      "dependsOn": ["^build", "build"]
+    },
+    "@lifeos/finance#test": {
+      "dependsOn": ["^build", "build"]
+    },
     "@lifeos/db#test": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/deploy/compose/**"]
@@ -38,7 +44,12 @@
       "dependsOn": ["^build"]
     },
     "//#lint:deps": {
-      "dependsOn": ["@lifeos/core#build"],
+      "dependsOn": [
+        "@lifeos/core#build",
+        "@lifeos/db#build",
+        "@lifeos/finance#build",
+        "@lifeos/registry#build"
+      ],
       "cache": false
     },
     "//#prettier:check": {
