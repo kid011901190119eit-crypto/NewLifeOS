@@ -25,7 +25,8 @@ xargs -0 -a <計画を書いたファイル> orca orchestration ask --from <自�
 
 「4. 確かめる」まで済んだら、push せずに `worker_done` で報告する(コミットは作業ブランチにしておく)。
 
-- 報告に書くこと: ブランチ名、最後のコミットの SHA、変えたファイルの一覧、`pnpm lint`・`format:check`・`typecheck`・`test`・`build` の結果、AGENTS.md「6. 報告する」の3つ
+- テストを書く変更では、Red・Green・Refactor を別々のコミットにしておく(AGENTS.md ルール1、「3. 実装する」)。レビュー役は、それぞれのコミットを開いてテストを実行する。
+- 報告に書くこと: ブランチ名、最後のコミットの SHA、Red・Green・Refactor それぞれのコミットの SHA(サイクルが複数あればサイクルごと。Refactor をしなかったときは「なし」)、変えたファイルの一覧、`pnpm lint`・`format:check`・`typecheck`・`test`・`build` の結果、AGENTS.md「6. 報告する」の3つ
 - この報告をもとに、レビュー役がブランチを読む。報告のあとは、指揮役から次の指示が届くまでブランチを動かさない。
 
 ## 3. 指揮役の指示で続きを行う

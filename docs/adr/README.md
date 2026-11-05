@@ -39,3 +39,4 @@ ADR(Architecture Decision Record)は、「何を・なぜ決めたのか」を1�
 | [0026](0026-db-ui-core-web-boundaries.md) | db・ui はいちばん下の層にし(外部のライブラリと自分の中だけを import する)、コアのサーバー側と core/web はお互いを import しない | 承認 |
 | [0027](0027-drizzle-and-migrate-command.md) | Drizzle 0.45 を使い、apps/migrate が registry の一覧から core → モジュールの順にマイグレーションを適用する(最初のマイグレーションは IF NOT EXISTS に手で直す、接続先は DATABASE_URL) | 承認 |
 | [0028](0028-finance-posting-conversion-types.md) | 画面入力と仕訳の変換は、種別ごとの型(判別可能なユニオン)・安全な整数の number・システム勘定の ID を引数で渡す・開始残高の拒否は結果の型・逆変換は role で見分ける。domain のテストだけ Vitest の import を許す | 承認 |
+| [0029](0029-tdd-separate-commits.md) | TDD の Red・Green・Refactor を別々のコミットにし、Red は型の合う仮の実装のうえで期待値の違いで失敗させる | 承認 |
