@@ -23,7 +23,10 @@ describe("dependency-cruiser のアーキテクチャテスト(module-system.md 
   it("依存のルールの違反と循環依存を検出し、違反しないファイルは検出しない", async () => {
     expect(await violations()).toEqual(
       [
+        "core-deps: packages/core/src/violation-imports-core-web.ts",
         "core-deps: packages/core/src/violation-imports-module.ts",
+        "db-deps: packages/db/src/violation-imports-ui.ts",
+        "ui-deps: packages/ui/src/violation-imports-core-server.ts",
         "core-web-deps: packages/core/src/web/violation-imports-core-server.ts",
         "core-web-deps: packages/core/src/web/violation-imports-db.ts",
         "domain-no-db: packages/modules/alpha/src/domain/violation-imports-own-db-schema.ts",

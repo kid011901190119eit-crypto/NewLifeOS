@@ -61,9 +61,34 @@ describe("ESLint の境界ルール(module-system.md §5.2)", () => {
       expect(errors).toEqual([expect.stringContaining("boundaries/dependencies")]);
     });
 
+    it("コアのサーバー側が core/web を import すると、型だけでもエラーになる", async () => {
+      const errors = await boundaryErrors("packages/core/src/violation-imports-core-web.ts");
+      expect(errors).toEqual([expect.stringContaining("boundaries/dependencies")]);
+    });
+
     it("コアが db を import しても、エラーにならない", async () => {
       expect(await boundaryErrors("packages/core/src/index.ts")).toEqual([]);
     });
+  });
+
+  describe("db と ui", () => {
+    it.each([
+      ["db が ui", "packages/db/src/violation-imports-ui.ts"],
+      ["ui がコアのサーバー側", "packages/ui/src/violation-imports-core-server.ts"],
+    ])("%s を import すると、エラーになる", async (_, file) => {
+      const errors = await boundaryErrors(file);
+      expect(errors).toEqual([expect.stringContaining("boundaries/dependencies")]);
+    });
+
+    it.each([
+      "packages/db/src/uses-external-and-own.ts",
+      "packages/ui/src/uses-external-and-own.ts",
+    ])(
+      "%s のように、外部のライブラリと自分のパッケージの中を import しても、エラーにならない",
+      async (file) => {
+        expect(await boundaryErrors(file)).toEqual([]);
+      },
+    );
   });
 
   describe("モジュールの画面のコード", () => {
