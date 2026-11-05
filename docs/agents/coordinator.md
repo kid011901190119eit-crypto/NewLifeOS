@@ -29,7 +29,7 @@ orca orchestration worker-start --worktree new-child --base-branch origin/main -
   --spec "docs/agents/reviewer.md の段階1に従って、Issue #<番号> の合格の条件のチェックリストを作る。読む章: <一覧>"
 ```
 
-- 起動の結果に出る **Dispatch ID**(`dispatch:…`)を、役割ごとに控える。以後のやり取りはこの ID で行う。
+- 起動の結果に出る **Dispatch ID**(`ctx_…` の形)を、役割ごとに控える。以後のやり取りはこの ID で行う。書き方はオプションで違う。`send` の宛先(`--to`)には `dispatch:ctx_…` と前に `dispatch:` を付け、`worker-show`・`worker-release`・`worker-stop` などの `--dispatch` には `ctx_…` だけを書く(`dispatch:` を付けると `dispatch_not_found` で失敗する)。
 - `worker-start` が失敗したら、やり直さずに `failedStage` を読み、オーナーに報告する。
 - 2人を起動したら、**ターンを終える**。Orca が起こしてくれる。見回り(ポーリング)・`sleep`・監視のスクリプトは使わない。
 
@@ -48,6 +48,8 @@ orca orchestration worker-start --worktree new-child --base-branch origin/main -
 - 作業役の出力は全部読まない。報告(`worker_done` の本文)の要約を使う。報告どうしが食い違うときだけ `worker-read` で確かめる。
 
 ## 4. レビューと修正の往復
+
+終わった作業役(`worker_done` を送ったあと)に `send` すると、新しい Task として受け付けられ、**Dispatch ID が変わる**。`send` の受領(receipt。コマンドが返す結果)に出る新しい `dispatchId` を控え直し、以後はそれを使う。ID が変わっても、同じ terminal・同じ会話で続きを受け取るので、作業役は前の内容を覚えている(学習ノート参照)。
 
 1. レビュー役に段階2を渡す。
 
@@ -76,6 +78,7 @@ orca orchestration worker-start --worktree new-child --base-branch origin/main -
    - プルリクエストの URL と CI の結果(`gh pr checks`)
    - レビューの結果: チェックリストの合否、指摘と直した内容、残った指摘
    - AGENTS.md「6. 報告する」の3つ(依頼の範囲を超えた変更・自分で書いたテストを直した箇所と理由・確かめられなかったことと理由)
+
 
 ## 利用枠を節約するために
 
