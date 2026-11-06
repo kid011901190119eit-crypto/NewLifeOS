@@ -8,6 +8,20 @@
       "when": 1793872322513,
       "tag": "0000_init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793957942930,
+      "tag": "0001_tables",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793957945974,
+      "tag": "0002_system_accounts",
+      "breakpoints": true
     }
   ]
 }
