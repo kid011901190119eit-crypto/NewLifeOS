@@ -36,3 +36,4 @@
 - [ORM と Drizzle(TypeScript から DB のテーブルを扱う)](orm-and-drizzle.md)
 - [マイグレーション(DB の構造の変更を、順番つきのファイルで残す)](database-migrations.md)
 - [判別可能なユニオン型と結果の型(TypeScript で「どの形か」を型で見分ける)](discriminated-union.md)
+- [DB の制約とビュー(CHECK・外部キー・UNIQUE・部分UNIQUE インデックス・ビュー)](db-constraints.md)

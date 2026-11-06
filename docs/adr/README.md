@@ -40,3 +40,4 @@ ADR(Architecture Decision Record)は、「何を・なぜ決めたのか」を1�
 | [0027](0027-drizzle-and-migrate-command.md) | Drizzle 0.45 を使い、apps/migrate が registry の一覧から core → モジュールの順にマイグレーションを適用する(最初のマイグレーションは IF NOT EXISTS に手で直す、接続先は DATABASE_URL) | 承認 |
 | [0028](0028-finance-posting-conversion-types.md) | 画面入力と仕訳の変換は、種別ごとの型(判別可能なユニオン)・安全な整数の number・システム勘定の ID を引数で渡す・開始残高の拒否は結果の型・逆変換は role で見分ける。domain のテストだけ Vitest の import を許す | 承認 |
 | [0029](0029-tdd-separate-commits.md) | TDD の Red・Green・Refactor を別々のコミットにし、Red は型の合う仮の実装のうえで期待値の違いで失敗させる | 承認 |
+| [0030](0030-finance-schema-and-test-database.md) | 家計簿のテーブル・制約・ビューは schema.ts に Drizzle で書き、データとトリガーは空のマイグレーションに手で書く。結合テストの DB は @lifeos/db/testing が本番と同じ migrateSchemas で作る(テストのファイルだけが使える)。金額と管理単位に安全な整数の範囲の CHECK を付ける | 承認 |

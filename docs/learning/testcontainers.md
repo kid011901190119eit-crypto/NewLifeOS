@@ -29,6 +29,7 @@
 | `packages/db/src/testing/ryuk-image.ts` | Ryuk のイメージ(版と digest で固定) |
 | `packages/db/src/*.integration.test.ts` | 結合テスト。ファイル名の `.integration` で、ユニットテストと分ける |
 | `packages/db/vitest.integration.config.ts` | 結合テストだけを実行する Vitest の設定 |
+| `packages/modules/finance/src/db/schema.integration.test.ts` | 家計簿のテーブルの制約の結合テスト(Issue #46) |
 
 ### 書き方
 
@@ -49,11 +50,30 @@ it("接続して SELECT 1 の結果を受け取れる", async () => {
 });
 ```
 
+### マイグレーションを適用した DB を作る(`createMigratedDatabase`)
+
+モジュールのテーブルを確かめる結合テストでは、テストごとに空の DB を作り、そのモジュールのマイグレーションを適用してから始める。`createMigratedDatabase` は、中で本番の `pnpm db:migrate` と同じ `migrateSchemas` を使う(ADR 0030)。テスト用に別の適用の仕方を書くと、本番と食い違うおそれがあるためである。
+
+```ts
+beforeEach(async () => {
+  const url = await postgres.createMigratedDatabase(`finance_test_${count}`, [
+    { schema: finance.id, folder: finance.migrations.folder },
+  ]);
+  client = new pg.Client({ connectionString: url });
+  await client.connect();
+});
+```
+
+- テストごとに DB を分けるのは、「有効な開始残高は1件だけ」のように DB 全体で数を数える制約があり、前のテストのデータが残ると結果が変わるためである。
+- 各テストを `BEGIN`〜`ROLLBACK` で包んで片付ける方法は使わない。仕訳の合計0を確かめる遅延制約(Issue #47)は `COMMIT` のときに動くので、コミットしないと確かめられないためである。
+- `@lifeos/db/testing` は、テストのファイル(`*.test.ts`)からしか import できない(ESLint と dependency-cruiser で検査している)。
+
 ### 実行のしかた
 
 ```sh
 pnpm test:integration                          # すべての結合テスト(Docker Desktop を起動しておく)
 pnpm --filter @lifeos/db test:integration      # packages/db だけ
+pnpm --filter @lifeos/finance test:integration # 家計簿のテーブルだけ
 ```
 
 `pnpm test`(ユニットテスト)は Docker なしで動く。CI では `integration` という別のジョブで結合テストを実行する。Turborepo のキャッシュは使わない(`cache: false`)。結合テストは毎回本物の DB で確かめるためである。
