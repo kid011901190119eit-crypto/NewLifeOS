@@ -1,6 +1,6 @@
 import { PostgreSqlContainer } from "@testcontainers/postgresql";
 import pg from "pg";
-import type { SchemaMigrations } from "../migrate/migrate-schemas.js";
+import { migrateSchemas, type SchemaMigrations } from "../migrate/migrate-schemas.js";
 import { postgresImageFromCompose } from "./postgres-image.js";
 import { RYUK_IMAGE } from "./ryuk-image.js";
 
@@ -50,7 +50,7 @@ export async function startPostgres(): Promise<TestPostgres> {
     createDatabase,
     async createMigratedDatabase(name, sources) {
       const url = await createDatabase(name);
-      void sources;
+      await migrateSchemas(url, sources);
       return url;
     },
     async stop() {
