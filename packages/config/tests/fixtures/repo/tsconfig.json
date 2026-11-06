@@ -8,6 +8,7 @@
       "@lifeos/core/web": ["packages/core/src/web/index.ts"],
       "@lifeos/db": ["packages/db/src/index.ts"],
       "@lifeos/db/migrate": ["packages/db/src/migrate/index.ts"],
+      "@lifeos/db/testing": ["packages/db/src/testing/index.ts"],
       "@lifeos/ui": ["packages/ui/src/index.ts"],
       "@lifeos/registry": ["packages/registry/src/server.ts"],
       "@lifeos/alpha/server": ["packages/modules/alpha/src/server/index.ts"],
