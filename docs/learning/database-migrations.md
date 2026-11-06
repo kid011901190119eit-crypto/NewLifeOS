@@ -37,7 +37,7 @@ pnpm db:migrate
 | `apps/migrate/src/plan.ts` | core を先頭に、一覧の順に並べる |
 | `apps/migrate/src/main.ts` | コマンドの入口。結果を表示し、失敗したら終了コード1で止まる |
 
-api・mcp・worker は、起動時にマイグレーションを適用しない。複数のプロセスが同時に適用してぶつかるのを避けるためである。`@lifeos/db/migrate` を import できるのは `apps/migrate` だけで、ESLint と dependency-cruiser で検査している。
+api・mcp・worker は、起動時にマイグレーションを適用しない。複数のプロセスが同時に適用してぶつかるのを避けるためである。`@lifeos/db/migrate` を import できるのは `apps/migrate` だけで、ESLint と dependency-cruiser で検査している。例外は、テスト用の道具の `@lifeos/db/testing`(テストのファイルからしか import できない)で、結合テストの DB を本番と同じ処理で作るために使う(ADR 0030)。
 
 ### 実行のしかた
 

@@ -181,6 +181,44 @@ describe("ESLint の境界ルール(module-system.md §5.2)", () => {
     });
   });
 
+  describe("テスト用の道具(@lifeos/db/testing)", () => {
+    it("テストではない本体のコードが import すると、エラーになる(本番のコードからテスト用の道具を経由してマイグレーションの適用に届かないようにするため)", async () => {
+      const errors = await boundaryErrors(
+        "packages/modules/alpha/src/server/violation-imports-db-testing.ts",
+      );
+      expect(errors).toEqual([expect.stringContaining("boundaries/dependencies")]);
+    });
+
+    it("モジュールのテストのファイルが import しても、エラーにならない", async () => {
+      expect(
+        await boundaryErrors("packages/modules/alpha/src/db/schema.integration.test.ts"),
+      ).toEqual([]);
+    });
+
+    it("domain のテストが import すると、エラーになる(domain は db を知らないため)", async () => {
+      const errors = await boundaryErrors(
+        "packages/modules/alpha/src/domain/violation-imports-db-testing.test.ts",
+      );
+      expect(errors).toEqual([expect.stringContaining("boundaries/dependencies")]);
+    });
+
+    it.each([
+      ["モジュールの web", "packages/modules/alpha/src/web/violation-imports-db-testing.test.ts"],
+      ["core/web", "packages/core/src/web/violation-imports-db-testing.test.ts"],
+      ["apps/web", "apps/web/src/violation-imports-db-testing.test.ts"],
+    ])(
+      "%s のテストが import すると、エラーになる(画面のコードは db を使えないため)",
+      async (_, file) => {
+        const errors = await boundaryErrors(file);
+        expect(errors).toEqual([expect.stringContaining("boundaries/dependencies")]);
+      },
+    );
+
+    it("db のテスト用の道具が db のマイグレーションの適用を import しても、エラーにならない(本番と同じ処理でテストの DB を作るため)", async () => {
+      expect(await boundaryErrors("packages/db/src/testing/index.ts")).toEqual([]);
+    });
+  });
+
   describe("違反しないファイル", () => {
     it.each([
       "packages/modules/alpha/src/server/index.ts",

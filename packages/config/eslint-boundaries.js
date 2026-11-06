@@ -27,6 +27,12 @@ const elements = [
     pattern: ["packages/db/src/migrate", "packages/db/dist/migrate"],
     partialMatch: false,
   },
+  // テスト用の道具は、テストのファイルだけが使う(ADR 0030)
+  {
+    type: "db-testing",
+    pattern: ["packages/db/src/testing", "packages/db/dist/testing"],
+    partialMatch: false,
+  },
   { type: "db", pattern: "packages/db", partialMatch: false },
   { type: "ui", pattern: "packages/ui", partialMatch: false },
   { type: "registry", pattern: "packages/registry", partialMatch: false },
@@ -58,7 +64,7 @@ const from = (...types) => ({ element: { types } });
 const domainPolicyAllowing = (libraries, message) => ({
   from: from("module-domain"),
   disallow: [
-    to("db", "module-db"),
+    to("db", "db-testing", "module-db"),
     { to: { module: { origin: "external", source: `!(${libraries.join("|")})` } } },
   ],
   message,
@@ -80,6 +86,8 @@ const policies = [
   // core/web はブラウザで動くので、db もコアのサーバー側も import させない(どちらも許可しない)
   { from: from("core"), allow: to("db") },
   { from: from("db-migrate"), allow: to("db") },
+  // テスト用の道具は、本番と同じ処理でテストの DB を作るためにマイグレーションの適用を使ってよい(ADR 0030)
+  { from: from("db-testing"), allow: to("db", "db-migrate") },
 
   // 自分のモジュールの中は、相対パスで自由に import してよい
   {
@@ -111,6 +119,24 @@ const policies = [
   { from: from("app-web"), allow: to("core-web", "ui", "module-web") },
 ];
 
+// テストのファイル用。db を使ってよい種類(画面のコードを除く)のテストだけが、db のテスト用の道具も使える。
+// domain の禁止(後ろにある domainPolicy)が優先されるよう、先頭に置く
+const testPolicies = [
+  {
+    from: from(
+      "core",
+      "db",
+      "db-migrate",
+      "db-testing",
+      ...moduleServerSide,
+      "app-server",
+      "app-migrate",
+    ),
+    allow: to("db-testing"),
+  },
+  ...policies,
+];
+
 /**
  * module-system.md §5.2 の依存のルールを eslint-plugin-boundaries で検査する設定。
  * @param {{ rootDir: string, tsconfigPath: string | string[] }} options
@@ -138,6 +164,16 @@ export function createBoundariesConfig({ rootDir, tsconfigPath }) {
         ],
       },
     },
+    // テストのファイルだけ、db のテスト用の道具を使ってよい(ADR 0030)
+    {
+      files: ["**/*.test.ts"],
+      rules: {
+        "boundaries/dependencies": [
+          "error",
+          { default: "disallow", checkAllOrigins: true, policies: testPolicies },
+        ],
+      },
+    },
     // domain のテストだけ、テストの道具の Vitest を使ってよい(ADR 0028)
     {
       files: ["**/src/domain/**/*.test.ts"],
@@ -147,7 +183,7 @@ export function createBoundariesConfig({ rootDir, tsconfigPath }) {
           {
             default: "disallow",
             checkAllOrigins: true,
-            policies: policies.map((policy) =>
+            policies: testPolicies.map((policy) =>
               policy === domainPolicy ? domainTestPolicy : policy,
             ),
           },

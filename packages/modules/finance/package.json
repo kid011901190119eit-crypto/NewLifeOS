@@ -14,7 +14,8 @@
     "build": "pnpm run clean && tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json",
     "lint": "eslint .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts"
   },
   "dependencies": {
     "@lifeos/core": "workspace:*",
@@ -22,9 +23,12 @@
   },
   "devDependencies": {
     "@lifeos/config": "workspace:*",
+    "@lifeos/db": "workspace:*",
     "@types/node": "^24.19.2",
+    "@types/pg": "^8.23.1",
     "drizzle-kit": "^0.31.11",
     "eslint": "^10.14.0",
+    "pg": "^8.23.1",
     "typescript": "~6.0.3",
     "vitest": "^5.1.0"
   }

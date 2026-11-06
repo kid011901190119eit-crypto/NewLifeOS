@@ -1,7 +1,7 @@
 # 家計簿のデータモデル(詳細設計)
 
 > ステータス: **確定版**(Issue #2 / フェーズ1)
-> 最終更新: 2026-11-04
+> 最終更新: 2026-11-06(Issue #46 で、金額と管理単位に安全な整数の範囲の CHECK を足した。ADR 0030)
 > 関連: [`spec.md` §3.3・§5](../spec.md)、ADR [0004](../adr/0004-double-entry-bookkeeping.md)・[0010](../adr/0010-finance-journal-rules.md)・[0011](../adr/0011-finance-needs-review.md)・[0012](../adr/0012-finance-immutability-and-idempotency.md)・[0013](../adr/0013-finance-table-details.md)
 
 この文書は、家計簿モジュール(`finance` スキーマ)のテーブル、制約、仕訳の変換規則、集計の方針、フェーズ4で書くテストの一覧をまとめたものである。フェーズ4の実装とテストは、この文書を正とする。
@@ -105,7 +105,7 @@ erDiagram
 共通の約束:
 - 主キーは UUIDv7(時刻順に並ぶUUID)。アプリで生成して渡す。DB側の既定値は PostgreSQL 18 の `uuidv7()` を使う(PostgreSQL は 18 に決まった。ADR 0022)。
 - 日時は `timestamptz`(UTCで保存)。取引日だけは `date`(Asia/Tokyo の日付)。
-- 金額は `bigint`(円)。浮動小数点型は使わない。
+- 金額は `bigint`(円)。浮動小数点型は使わない。TypeScript では安全な整数の `number` で扱う(ADR 0028)ので、DB でも `-9007199254740991`〜`9007199254740991`(`Number.MAX_SAFE_INTEGER`)の範囲に収める(ADR 0030)。
 - 外部キーはすべて `ON DELETE RESTRICT`(物理削除しないため、連鎖削除は使わない)。
 
 ### 3.1 `accounts`(勘定)
@@ -136,7 +136,7 @@ erDiagram
 - `UNIQUE (system_key)`
 - `CHECK (kind IN ('asset','expense','income','loan','equity','suspense'))`
 - `CHECK (btrim(name) <> '')`
-- `CHECK (unit_amount >= 1)`
+- `CHECK (unit_amount BETWEEN 1 AND 9007199254740991)` — 1以上で、安全な整数の範囲(ADR 0030)
 - `CHECK (kind = 'asset' OR unit_amount = 1)`
 - `CHECK ((kind IN ('equity','suspense')) = (system_key IS NOT NULL))` — 純資産と未分類はシステム勘定だけ
 - `CHECK (system_key IS NULL OR system_key IN ('opening_balance','uncategorized'))`
@@ -196,6 +196,7 @@ spec §5.4 の案から変えた点:
 - `FOREIGN KEY (account_id) REFERENCES accounts(id)`
 - `CHECK (role IN ('account','counter'))`
 - `CHECK (amount <> 0)`
+- `CHECK (amount BETWEEN -9007199254740991 AND 9007199254740991)` — 安全な整数の範囲(ADR 0030)
 - 遅延制約トリガー: 同じ取引の仕訳の合計が0で、2行以上あること(§5.2)
 - トリガー: `UPDATE`・`DELETE`・`TRUNCATE` を禁止(一度書いたら変えない)
 - インデックス: `(transaction_id)`、`(account_id)`
@@ -328,7 +329,7 @@ WHERE t.voided_at IS NULL;
 
 | ルール | DB | アプリ | DBでの手段 |
 |---|---|---|---|
-| 金額は整数(円) | ○ | ○ | `bigint` 型 |
+| 金額は整数(円)で、安全な整数の範囲 | ○ | ○ | `bigint` 型と `CHECK`(範囲) |
 | 仕訳の金額は0以外 | ○ | ○ | `CHECK (amount <> 0)` |
 | 1つの取引の仕訳の合計は0、2行以上 | ○ | ○ | 遅延制約トリガー(§5.2) |
 | 参照する勘定・取引が存在する | ○ | | 外部キー |
@@ -340,7 +341,7 @@ WHERE t.voided_at IS NULL;
 | 冪等キーは1回だけ使える | ○ | ○ | 主キー(UNIQUE) |
 | 有効な開始残高は1件だけ | ○ | ○ | 部分UNIQUEインデックス |
 | 1つの取引の置き換えは1回だけ | ○ | ○ | `UNIQUE (replaces_id)` |
-| 管理単位は1以上、口座以外は1 | ○ | ○ | `CHECK` |
+| 管理単位は1以上(安全な整数の範囲)、口座以外は1 | ○ | ○ | `CHECK` |
 | 種別ごとに使える勘定の種別(§4.1) | | ○ | — |
 | 仕訳の `role` の数(口座側1行・相手側1行、開始残高は口座側1行以上) | | ○ | — |
 | 置き換えるとき元の取引を同時に取消す | | ○ | —(結合テストで確認) |

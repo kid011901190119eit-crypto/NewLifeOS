@@ -519,7 +519,8 @@ export type { Balance } from "../domain/balance";
 | apps/migrate | ○ | × | ○ | × | × | × | ○ |
 | apps/web | × | ○ | × | ○ | × | web だけ ○ | × |
 
-- db のうちマイグレーションの適用(`@lifeos/db/migrate`)を import できるのは、`apps/migrate` だけ(§4.4。api・mcp・worker などが起動時に適用しないようにする。#37、ADR 0027)。
+- db のうちマイグレーションの適用(`@lifeos/db/migrate`)を import できるのは、`apps/migrate` だけ(§4.4。api・mcp・worker などが起動時に適用しないようにする。#37、ADR 0027)。例外として、db のテスト用の道具(`@lifeos/db/testing`)は、本番と同じ処理でテストの DB を作るために使ってよい(ADR 0030)。
+- db のテスト用の道具(`@lifeos/db/testing`)を import できるのは、テストのファイル(`*.test.ts`)だけ(本番のコードがテスト用の道具を経由してマイグレーションの適用に届かないようにする。ADR 0030)。
 - モジュールも core と同じく `exports` で dist(ビルドの成果物)に解決されるので、検査は src と dist の両方を見る(#37)。
 
 - 自分のモジュールの中では、相対パスで自由に import してよい。ただし `web` から `server`・`db/schema` は × (ブラウザに入れないため)。

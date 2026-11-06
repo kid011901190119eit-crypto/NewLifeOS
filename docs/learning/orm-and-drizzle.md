@@ -32,7 +32,7 @@
 | ファイル | 役割 |
 |---|---|
 | `packages/core/src/db/schema.ts` | `pgSchema("core")`。core のテーブルはこの下に作る |
-| `packages/modules/finance/src/db/schema.ts` | `pgSchema("finance")`。家計簿のテーブルはフェーズ4でこの下に足す |
+| `packages/modules/finance/src/db/schema.ts` | `pgSchema("finance")` と、家計簿のテーブル・制約・ビュー(Issue #46) |
 | `packages/core/drizzle.config.ts`・`packages/modules/finance/drizzle.config.ts` | `schemaFilter` で自分のスキーマだけを見て、`migrations/` に SQL を出力する |
 
 ### マイグレーションの SQL の作り方
@@ -45,7 +45,23 @@ pnpm exec drizzle-kit generate --name <変更の名前>   # migrations/ に SQL 
 - 生成された SQL は、コミットする前に必ず読む。
 - **各モジュールの最初のマイグレーションだけは、手で直す。** 生成された `CREATE SCHEMA "finance";` を `CREATE SCHEMA IF NOT EXISTS "finance";` にする。理由は [マイグレーション](database-migrations.md) の「気をつけること」と ADR 0027 にある。直し忘れは `apps/migrate/src/first-migration.test.ts` で検出する。
 - `migrations/meta/` は drizzle-kit が差分を計算するための記録で、drizzle-kit が自分の形式で書き直す。Prettier の対象から外している(`.prettierignore`)。
+- **データの INSERT や、Drizzle で書けないもの(トリガー・関数)は、空のマイグレーションに手で書く。** `pnpm exec drizzle-kit generate --custom --name <名前>` で、中身が空の SQL ファイルと meta の記録ができる。システム勘定2件の INSERT(`0002_system_accounts.sql`)はこの方法で作った(ADR 0030)。
 - `drizzle-kit migrate`(drizzle-kit からの適用)は使わない。適用は `pnpm db:migrate` で行う。
+
+### テーブル・制約・ビューの書き方(finance の例)
+
+| 書きたいもの | Drizzle の書き方 | 生成される SQL |
+|---|---|---|
+| テーブル | `financeSchema.table("accounts", { ... }, (table) => [ ...制約 ])` | `CREATE TABLE "finance"."accounts"` |
+| CHECK 制約 | `` check("postings_amount_nonzero", sql`amount <> 0`) `` | `CONSTRAINT ... CHECK (amount <> 0)` |
+| UNIQUE | `unique("accounts_kind_name_unique").on(table.kind, table.name)` | `CONSTRAINT ... UNIQUE("kind","name")` |
+| 外部キー | `.references(() => accounts.id, { onDelete: "restrict" })` | `FOREIGN KEY ... ON DELETE restrict` |
+| 部分UNIQUE インデックス | `` uniqueIndex("...").on(sql`(true)`).where(sql`...`) `` | `CREATE UNIQUE INDEX ... WHERE ...` |
+| ビュー | `` financeSchema.view("active_postings", { 列 }).as(sql`SELECT ...`) `` | `CREATE VIEW "finance"."active_postings"` |
+
+- 制約には名前を付ける。拒否されたとき、エラーの `constraint` に名前が入り、テストで「どの制約に拒否されたか」を確かめられる。
+- `bigint` の列は `{ mode: "number" }` にする。TypeScript では安全な整数の `number` で金額を扱う(ADR 0028)ので、DB の側にも安全な整数の範囲の CHECK を付けている(ADR 0030)。
+- 制約そのものの解説は [DB の制約とビュー](db-constraints.md) にある。
 
 ### 版
 
