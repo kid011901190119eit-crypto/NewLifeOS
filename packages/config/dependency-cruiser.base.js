@@ -7,6 +7,9 @@ const coreServer = "packages/core/(?!(src|dist)/web/)";
 const anyPublic = "packages/modules/[^/]+/(src|dist)/public/";
 const anyModuleServer = "packages/modules/[^/]+/(src|dist)/server/";
 const dbMigrate = "packages/db/(src|dist)/migrate/";
+const dbTesting = "packages/db/(src|dist)/testing/";
+// テストのファイル(結合テストの *.integration.test.ts も含む)
+const testFile = "\\.test\\.ts$";
 // 開発用の設定の共有(vitest.config.ts などから読む)は §5.2 の表の対象外なので、どこからでも import してよい
 const tooling = "^packages/config/";
 
@@ -169,8 +172,17 @@ const forbidden = [
     comment:
       "マイグレーションの適用は migrate だけが行う(api・mcp・worker などが起動時に適用しないようにする。module-system.md §4.4)",
     severity: "error",
-    from: { pathNot: `^(apps/migrate/|${dbMigrate})` },
+    // db のテスト用の道具は、本番と同じ処理でテストの DB を作るために使ってよい(起動の処理ではないため。ADR 0030)
+    from: { pathNot: `^(apps/migrate/|${dbMigrate}|${dbTesting})` },
     to: { path: `^${dbMigrate}` },
+  },
+  {
+    name: "db-testing-only-from-tests",
+    comment:
+      "db のテスト用の道具を import してよいのはテストのファイルだけ(本番のコードがテスト用の道具を経由してマイグレーションの適用に届かないようにする。ADR 0030)",
+    severity: "error",
+    from: { pathNot: [testFile, `^${dbTesting}`] },
+    to: { path: `^${dbTesting}` },
   },
   row(
     "app-web-deps",
