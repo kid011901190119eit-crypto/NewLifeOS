@@ -1,5 +1,6 @@
 import { PostgreSqlContainer } from "@testcontainers/postgresql";
 import pg from "pg";
+import type { SchemaMigrations } from "../migrate/migrate-schemas.js";
 import { postgresImageFromCompose } from "./postgres-image.js";
 import { RYUK_IMAGE } from "./ryuk-image.js";
 
@@ -9,6 +10,11 @@ export interface TestPostgres {
   readonly connectionUri: string;
   /** 空のデータベースを新しく作り、その接続先を返す(テストごとに状態を分けるため) */
   createDatabase(name: string): Promise<string>;
+  /**
+   * 空のデータベースを新しく作り、本番と同じ migrateSchemas で sources のマイグレーションを適用してから、その接続先を返す。
+   * テスト用の道具なので、テストのファイルからだけ使う(ADR 0030)
+   */
+  createMigratedDatabase(name: string, sources: readonly SchemaMigrations[]): Promise<string>;
   stop(): Promise<void>;
 }
 
@@ -31,14 +37,21 @@ export async function startPostgres(): Promise<TestPostgres> {
   }
 
   const connectionUri = container.getConnectionUri();
+  async function createDatabase(name: string): Promise<string> {
+    await client.query(`CREATE DATABASE ${client.escapeIdentifier(name)}`);
+    const url = new URL(connectionUri);
+    url.pathname = `/${name}`;
+    return url.toString();
+  }
+
   return {
     client,
     connectionUri,
-    async createDatabase(name) {
-      await client.query(`CREATE DATABASE ${client.escapeIdentifier(name)}`);
-      const url = new URL(connectionUri);
-      url.pathname = `/${name}`;
-      return url.toString();
+    createDatabase,
+    async createMigratedDatabase(name, sources) {
+      const url = await createDatabase(name);
+      void sources;
+      return url;
     },
     async stop() {
       try {

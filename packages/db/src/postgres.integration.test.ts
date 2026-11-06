@@ -1,3 +1,5 @@
+import path from "node:path";
+import pg from "pg";
 import { getContainerRuntimeClient } from "testcontainers";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { postgresImageFromCompose, postgresVersionOf } from "./testing/postgres-image.js";
@@ -31,6 +33,24 @@ describe("Testcontainers で起動した使い捨ての PostgreSQL", () => {
   it("uuidv7() が、版7の形の UUID を返す(主キーの既定値に使う。ADR 0013)", async () => {
     const result = await postgres.client.query<{ id: string }>("SELECT uuidv7()::text AS id");
     expect(result.rows[0]?.id).toMatch(uuidV7);
+  });
+
+  it("マイグレーションを適用した DB を作ると、新しい DB に渡したマイグレーションが適用され、適用履歴がそのスキーマの中に残る", async () => {
+    const url = await postgres.createMigratedDatabase("migrated_test", [
+      { schema: "alpha", folder: path.join(import.meta.dirname, "migrate", "fixtures", "alpha") },
+    ]);
+
+    const client = new pg.Client({ connectionString: url });
+    await client.connect();
+    try {
+      const result = await client.query<{ marker: boolean; history: boolean }>(
+        `SELECT to_regclass('alpha.marker') IS NOT NULL AS marker,
+                to_regclass('alpha.__migrations') IS NOT NULL AS history`,
+      );
+      expect(result.rows).toEqual([{ marker: true, history: true }]);
+    } finally {
+      await client.end();
+    }
   });
 
   it("後片付け係の Ryuk は、digest で固定したイメージで動いている", async () => {
