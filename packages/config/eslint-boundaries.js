@@ -119,8 +119,23 @@ const policies = [
   { from: from("app-web"), allow: to("core-web", "ui", "module-web") },
 ];
 
-// テストのファイル用。domain の禁止(後ろにある domainPolicy)が優先されるよう、先頭に置く
-const testPolicies = [{ allow: to("db-testing") }, ...policies];
+// テストのファイル用。db を使ってよい種類(画面のコードを除く)のテストだけが、db のテスト用の道具も使える。
+// domain の禁止(後ろにある domainPolicy)が優先されるよう、先頭に置く
+const testPolicies = [
+  {
+    from: from(
+      "core",
+      "db",
+      "db-migrate",
+      "db-testing",
+      ...moduleServerSide,
+      "app-server",
+      "app-migrate",
+    ),
+    allow: to("db-testing"),
+  },
+  ...policies,
+];
 
 /**
  * module-system.md §5.2 の依存のルールを eslint-plugin-boundaries で検査する設定。
