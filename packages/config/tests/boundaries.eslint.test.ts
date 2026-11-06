@@ -202,6 +202,18 @@ describe("ESLint の境界ルール(module-system.md §5.2)", () => {
       expect(errors).toEqual([expect.stringContaining("boundaries/dependencies")]);
     });
 
+    it.each([
+      ["モジュールの web", "packages/modules/alpha/src/web/violation-imports-db-testing.test.ts"],
+      ["core/web", "packages/core/src/web/violation-imports-db-testing.test.ts"],
+      ["apps/web", "apps/web/src/violation-imports-db-testing.test.ts"],
+    ])(
+      "%s のテストが import すると、エラーになる(画面のコードは db を使えないため)",
+      async (_, file) => {
+        const errors = await boundaryErrors(file);
+        expect(errors).toEqual([expect.stringContaining("boundaries/dependencies")]);
+      },
+    );
+
     it("db のテスト用の道具が db のマイグレーションの適用を import しても、エラーにならない(本番と同じ処理でテストの DB を作るため)", async () => {
       expect(await boundaryErrors("packages/db/src/testing/index.ts")).toEqual([]);
     });

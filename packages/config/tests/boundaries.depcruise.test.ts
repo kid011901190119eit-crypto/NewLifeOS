@@ -47,6 +47,9 @@ describe("dependency-cruiser のアーキテクチャテスト(module-system.md 
         "db-migrate-only-from-migrate-app: packages/core/src/violation-imports-db-migrate.ts",
         "db-testing-only-from-tests: packages/modules/alpha/src/server/violation-imports-db-testing.ts",
         "domain-no-db: packages/modules/alpha/src/domain/violation-imports-db-testing.test.ts",
+        "module-web-deps: packages/modules/alpha/src/web/violation-imports-db-testing.test.ts",
+        "core-web-deps: packages/core/src/web/violation-imports-db-testing.test.ts",
+        "app-web-deps: apps/web/src/violation-imports-db-testing.test.ts",
         // 1つの循環(cycle-a ⇄ cycle-b)は、1件として報告される
         "no-circular: packages/modules/alpha/src/domain/cycle-a.ts",
       ].sort(),
