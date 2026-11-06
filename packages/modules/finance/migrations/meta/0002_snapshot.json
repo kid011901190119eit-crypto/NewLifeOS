@@ -1,6 +1,6 @@
 {
-  "id": "32320a6c-da81-4474-aff1-2c50af363bdc",
-  "prevId": "d423c681-372e-4868-9abf-0ca12cc9c141",
+  "id": "7733e524-2546-49a5-9870-ab0cf99381c5",
+  "prevId": "0dff27d5-5947-466d-b809-d0e9f9feb04d",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -64,9 +64,50 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "accounts_kind_name_unique": {
+          "name": "accounts_kind_name_unique",
+          "columns": [
+            "kind",
+            "name"
+          ],
+          "nullsNotDistinct": false
+        },
+        "accounts_system_key_unique": {
+          "name": "accounts_system_key_unique",
+          "columns": [
+            "system_key"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "accounts_kind_check": {
+          "name": "accounts_kind_check",
+          "value": "kind IN ('asset', 'expense', 'income', 'loan', 'equity', 'suspense')"
+        },
+        "accounts_name_not_blank": {
+          "name": "accounts_name_not_blank",
+          "value": "btrim(name) <> ''"
+        },
+        "accounts_unit_amount_range": {
+          "name": "accounts_unit_amount_range",
+          "value": "unit_amount BETWEEN 1 AND 9007199254740991"
+        },
+        "accounts_unit_amount_only_for_asset": {
+          "name": "accounts_unit_amount_only_for_asset",
+          "value": "kind = 'asset' OR unit_amount = 1"
+        },
+        "accounts_system_kind_has_system_key": {
+          "name": "accounts_system_kind_has_system_key",
+          "value": "(kind IN ('equity', 'suspense')) = (system_key IS NOT NULL)"
+        },
+        "accounts_system_key_check": {
+          "name": "accounts_system_key_check",
+          "value": "system_key IS NULL OR system_key IN ('opening_balance', 'uncategorized')"
+        }
+      },
       "isRLSEnabled": false
     },
     "finance.idempotency_keys": {
@@ -76,7 +117,7 @@
         "key": {
           "name": "key",
           "type": "text",
-          "primaryKey": false,
+          "primaryKey": true,
           "notNull": true
         },
         "operation": {
@@ -112,11 +153,39 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "idempotency_keys_transaction_id_transactions_id_fk": {
+          "name": "idempotency_keys_transaction_id_transactions_id_fk",
+          "tableFrom": "idempotency_keys",
+          "columnsFrom": [
+            "transaction_id"
+          ],
+          "tableTo": "transactions",
+          "schemaTo": "finance",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "restrict"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "idempotency_keys_key_length": {
+          "name": "idempotency_keys_key_length",
+          "value": "char_length(key) BETWEEN 1 AND 255"
+        },
+        "idempotency_keys_operation_check": {
+          "name": "idempotency_keys_operation_check",
+          "value": "operation IN ('create', 'replace', 'void')"
+        },
+        "idempotency_keys_created_by_check": {
+          "name": "idempotency_keys_created_by_check",
+          "value": "created_by IN ('user', 'agent')"
+        }
+      },
       "isRLSEnabled": false
     },
     "finance.postings": {
@@ -162,12 +231,85 @@
           "default": "now()"
         }
       },
-      "indexes": {},
-      "foreignKeys": {},
+      "indexes": {
+        "postings_transaction_id_idx": {
+          "name": "postings_transaction_id_idx",
+          "columns": [
+            {
+              "expression": "transaction_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "postings_account_id_idx": {
+          "name": "postings_account_id_idx",
+          "columns": [
+            {
+              "expression": "account_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "postings_transaction_id_transactions_id_fk": {
+          "name": "postings_transaction_id_transactions_id_fk",
+          "tableFrom": "postings",
+          "columnsFrom": [
+            "transaction_id"
+          ],
+          "tableTo": "transactions",
+          "schemaTo": "finance",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "restrict"
+        },
+        "postings_account_id_accounts_id_fk": {
+          "name": "postings_account_id_accounts_id_fk",
+          "tableFrom": "postings",
+          "columnsFrom": [
+            "account_id"
+          ],
+          "tableTo": "accounts",
+          "schemaTo": "finance",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "restrict"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "postings_role_check": {
+          "name": "postings_role_check",
+          "value": "role IN ('account', 'counter')"
+        },
+        "postings_amount_nonzero": {
+          "name": "postings_amount_nonzero",
+          "value": "amount <> 0"
+        },
+        "postings_amount_safe_integer": {
+          "name": "postings_amount_safe_integer",
+          "value": "amount BETWEEN -9007199254740991 AND 9007199254740991"
+        }
+      },
       "isRLSEnabled": false
     },
     "finance.transactions": {
@@ -239,12 +381,73 @@
           "default": "now()"
         }
       },
-      "indexes": {},
-      "foreignKeys": {},
+      "indexes": {
+        "transactions_one_active_opening": {
+          "name": "transactions_one_active_opening",
+          "columns": [
+            {
+              "expression": "(true)",
+              "isExpression": true,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "with": {},
+          "method": "btree",
+          "where": "kind = 'opening' AND voided_at IS NULL",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "transactions_replaces_id_fk": {
+          "name": "transactions_replaces_id_fk",
+          "tableFrom": "transactions",
+          "columnsFrom": [
+            "replaces_id"
+          ],
+          "tableTo": "transactions",
+          "schemaTo": "finance",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "restrict"
+        }
+      },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "transactions_replaces_id_unique": {
+          "name": "transactions_replaces_id_unique",
+          "columns": [
+            "replaces_id"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "transactions_kind_check": {
+          "name": "transactions_kind_check",
+          "value": "kind IN ('regular', 'transfer', 'lend', 'borrow', 'opening')"
+        },
+        "transactions_created_by_check": {
+          "name": "transactions_created_by_check",
+          "value": "created_by IN ('user', 'agent')"
+        },
+        "transactions_voided_by_check": {
+          "name": "transactions_voided_by_check",
+          "value": "voided_by IS NULL OR voided_by IN ('user', 'agent')"
+        },
+        "transactions_voided_together": {
+          "name": "transactions_voided_together",
+          "value": "(voided_at IS NULL) = (voided_by IS NULL)"
+        },
+        "transactions_replaces_other": {
+          "name": "transactions_replaces_other",
+          "value": "replaces_id IS NULL OR replaces_id <> id"
+        }
+      },
       "isRLSEnabled": false
     }
   },
@@ -306,7 +509,7 @@
           "notNull": true
         }
       },
-      "definition": "SELECT p.id, p.transaction_id, p.account_id, p.role, p.amount, t.kind AS transaction_kind, t.occurred_on, t.created_at AS transaction_created_at FROM finance.postings p JOIN finance.transactions t ON t.id = p.transaction_id",
+      "definition": "SELECT p.id, p.transaction_id, p.account_id, p.role, p.amount, t.kind AS transaction_kind, t.occurred_on, t.created_at AS transaction_created_at FROM finance.postings p JOIN finance.transactions t ON t.id = p.transaction_id WHERE t.voided_at IS NULL",
       "materialized": false,
       "isExisting": false
     }
