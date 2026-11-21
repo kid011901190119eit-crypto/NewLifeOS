@@ -1,7 +1,7 @@
 {
   "name": "lifeos",
   "private": true,
-  "packageManager": "pnpm@12.16.1",
+  "packageManager": "pnpm@12.21.0",
   "engines": {
     "node": ">=24 <25"
   },
@@ -26,7 +26,7 @@
   "devDependencies": {
     "@lifeos/config": "workspace:*",
     "dependency-cruiser": "^18.7.2",
-    "prettier": "^3.9.10",
-    "turbo": "^2.11.10"
+    "prettier": "^3.10.1",
+    "turbo": "^2.11.11"
   }
 }
